@@ -99,7 +99,7 @@ def login():
                 'role': 'doctor'  
             }), 200
         else:
-            return jsonify({'error': 'Invalid credentials'}), 401
+            return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
 
     else:
         return jsonify({'error': 'Invalid role'}), 400

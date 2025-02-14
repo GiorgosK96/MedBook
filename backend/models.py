@@ -24,9 +24,16 @@ class Person(db.Model):
 class Patient(Person):
     __tablename__ = 'patient' 
 
+    
+    def __repr__(self):
+        return f"<Patient('{self.full_name}', '{self.username}', '{self.email}')>"
+
 class Doctor(Person):
     __tablename__ = 'doctor'  
     specialization = db.Column(db.String(80), nullable=False) 
+
+    def __repr__(self):
+        return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
