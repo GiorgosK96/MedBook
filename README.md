@@ -3,7 +3,7 @@ An application for patients to book and manage their medical appointments with d
 
 ## Features
 Secure user authentication.
-Patients can book, update, and cancel appointments.  
+Patients can book, update, and cancel appointments.
 Doctors can manage their schedules and appointments.  
 Real-time appointment validation (no duplicate bookings).
 
