@@ -1,0 +1,51 @@
+.manage-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 50px;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.manage-title {
+  margin-bottom: 40px;
+  font-size: 2em;
+  color: #333;
+}
+
+.manage-button {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.1em;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.manage-add-appointment-button {
+  background-color: #4CAF50;
+}
+
+.manage-add-appointment-button:hover {
+  background-color: #45a049;
+}
+
+.manage-show-appointment-button, .manage-account-button {
+  background-color: #008CBA;
+}
+
+.manage-show-appointment-button:hover, .manage-account-button:hover {
+  background-color: #007bb5;
+}
+
+.manage-logout-button, .manage-back-button {
+  background-color: #ec2618;
+}
+
+.manage-logout-button:hover, .manage-back-button:hover {
+  background-color: #d32f2f;
+}
