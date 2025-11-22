@@ -1,17 +1,44 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.register-bg {
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 50%, #ffffff 100%);
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
 .register-container {
-  max-width: 500px;
-  margin: 0 auto;
+  max-width: 550px;
+  width: 100%;
   padding: 50px;
-  background-color: #f0f8ff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 102, 204, 0.3);
+  border: 3px solid rgba(0, 102, 204, 0.1);
   text-align: center;
+  position: relative;
 }
 
 .register-title {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-size: 2em;
-  color: #333;
+  color: #0066cc;
+  font-weight: 700;
 }
 
 .register-form {
@@ -20,71 +47,149 @@
 }
 
 .register-form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   text-align: left;
 }
 
 .register-form-group label {
-  font-size: 1.1em;
-  color: #333;
+  font-size: 1em;
+  color: #2c5282;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
 }
 
 .register-form-group input, 
 .register-form-group select {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
+  padding: 12px 15px;
   font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.register-form-group input:focus, 
+.register-form-group select:focus {
+  outline: none;
+  border-color: #0066cc;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 
 .register-button, 
 .register-login-redirect-button, 
 .register-back-button {
   width: 100%;
-  padding: 10px;
+  padding: 14px;
   font-size: 1.1em;
-  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  margin-bottom: 10px; 
-  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+  margin-top: 5px;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .register-button {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
 }
 
 .register-button:hover {
-  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.6);
+  background: linear-gradient(135deg, #0052a3 0%, #0080d6 100%);
 }
 
 .register-login-redirect-button {
-  background-color: #008CBA;
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
 }
 
 .register-login-redirect-button:hover {
-  background-color: #007bb5;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.5);
+  background: linear-gradient(135deg, #138496 0%, #1c9d77 100%);
 }
 
 .register-back-button {
-  background-color: #e74c3c;
+  background-color: #ffffff;
+  color: #0066cc;
+  border: 2px solid #e2e8f0;
 }
 
 .register-back-button:hover {
-  background-color: #d32f2f;
+  background-color: #f8f9fa;
+  border-color: #0066cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+}
+
+.register-button:active,
+.register-login-redirect-button:active,
+.register-back-button:active {
+  transform: translateY(0);
 }
 
 .register-error-text {
-  color: red;
-  font-size: 1.0em;
+  color: #dc3545;
+  font-size: 0.9em;
+  margin-top: 5px;
+  background-color: #ffebee;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #dc3545;
 }
 
 .register-message-text {
   margin-top: 15px;
   font-size: 1em;
-  color: red;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #dc3545;
+}
+
+.register-message-text {
+  color: #dc3545;
+  background-color: #ffebee;
+}
+
+/* Success message styling */
+.register-message-text.success {
+  color: #28a745;
+  background-color: #d4edda;
+  border-left-color: #28a745;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .register-bg {
+    padding: 20px 10px;
+  }
+  
+  .register-container {
+    padding: 35px 25px;
+  }
+  
+  .register-title {
+    font-size: 1.6em;
+    margin-bottom: 25px;
+  }
+  
+  .register-form-group {
+    margin-bottom: 16px;
+  }
+  
+  .register-button,
+  .register-login-redirect-button,
+  .register-back-button {
+    padding: 12px;
+    font-size: 1em;
+  }
 }

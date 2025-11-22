@@ -85,45 +85,47 @@ export const AddAppointment = () => {
   };
 
   return (
-    <div className="add-appointment-container">
-      <h2 className="add-appointment-title">Add Appointment</h2>
-      <form className="add-appointment-form">
-        <div className="add-form-group">
-          <label>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </div>
-        <div className="add-form-group">
-          <label>From</label>
-          <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
-        </div>
-        <div className="add-form-group">
-          <label>To</label>
-          <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
-        </div>
-        <div className="add-form-group">
-          <label>Doctor</label>
-          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
-            <option value="">Select Doctor</option>
-            {doctors.map((doctor) => (
-              <option key={doctor.id} value={doctor.id}>
-                {doctor.full_name} ({doctor.specialization})
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="add-form-group">
-          <label>Comments</label>
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
-        </div>
-        <button type="button" onClick={handleSubmit} className="add-appointment-button">Add Appointment</button>
-      </form>
-      <button onClick={handleBackToManage} className="add-back-button">Back to Manage Appointments</button>
-      <button onClick={handleLogout} className="add-logout-button">Logout</button>
-      {message && (
-        <p className={`add-message-text ${isAccepted ? 'add-success-text' : 'add-error-text'}`}>
-          {message}
-        </p>
-      )}
+    <div className="add-appointment-bg">
+      <div className="add-appointment-container">
+        <h2 className="add-appointment-title">Add Appointment</h2>
+        <form className="add-appointment-form">
+          <div className="add-form-group">
+            <label>Date</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          <div className="add-form-group">
+            <label>From</label>
+            <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
+          </div>
+          <div className="add-form-group">
+            <label>To</label>
+            <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
+          </div>
+          <div className="add-form-group">
+            <label>Doctor</label>
+            <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
+              <option value="">Select Doctor</option>
+              {doctors.map((doctor) => (
+                <option key={doctor.id} value={doctor.id}>
+                  {doctor.full_name} ({doctor.specialization})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="add-form-group">
+            <label>Comments</label>
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+          </div>
+          <button type="button" onClick={handleSubmit} className="add-appointment-button">Add Appointment</button>
+        </form>
+        <button onClick={handleBackToManage} className="add-back-button">Back to Manage Appointments</button>
+        <button onClick={handleLogout} className="add-logout-button">Logout</button>
+        {message && (
+          <p className={`add-message-text ${isAccepted ? 'add-success-text' : 'add-error-text'}`}>
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

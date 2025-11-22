@@ -48,21 +48,23 @@ function Account() {
   };
 
   return (
-    <div className="account-container">
-      <h2>Account Information</h2>
-      {message && <p className="account-error-text">{message}</p>}
-      {accountData && (
-        <div className="account-details">
-          <p><strong>Full Name:</strong> {accountData.full_name}</p>
-          <p><strong>Username:</strong> {accountData.username}</p>
-          <p><strong>Email:</strong> {accountData.email}</p>
-          {accountData.role === 'doctor' && (
-            <p><strong>Specialization:</strong> {accountData.specialization}</p>
-          )}
-        </div>
-      )}
-      <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back</button>
-      <button className="account-logout-button" onClick={handleLogout}>Logout</button>
+    <div className="account-bg">
+      <div className="account-container">
+        <h2>Account Information</h2>
+        {message && <p className="account-error-text">{message}</p>}
+        {accountData && (
+          <div className="account-details">
+            <p><strong>Full Name:</strong> {accountData.full_name}</p>
+            <p><strong>Username:</strong> {accountData.username}</p>
+            <p><strong>Email:</strong> {accountData.email}</p>
+            {accountData.role === 'doctor' && (
+              <p><strong>Specialization:</strong> {accountData.specialization}</p>
+            )}
+          </div>
+        )}
+        <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back</button>
+        <button className="account-logout-button" onClick={handleLogout}>Logout</button>
+      </div>
     </div>
   );
 }

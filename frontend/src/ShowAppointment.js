@@ -35,6 +35,15 @@ function ShowAppointment() {
   };
 
   const handleDeleteAppointment = (appointmentId) => {
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.'
+    );
+    
+    if (!confirmed) {
+      return; // User cancelled, do nothing
+    }
+
     fetch(`/ShowAppointment/${appointmentId}`, {
       method: 'DELETE',
       headers: {
@@ -70,29 +79,42 @@ function ShowAppointment() {
   };
 
   return (
-    <div className="show-appointment-container">
-      <h2 className="show-appointment-title">Your Appointments</h2>
+    <div className="show-appointment-bg">
+      <div className="show-appointment-container">
+        <h2 className="show-appointment-title">Your Appointments</h2>
 
-      <ul className="show-appointment-list">
-        {appointments.map((appointment) => (
-          <li key={appointment.id} className="show-appointment-item">
-            <p><strong>Date:</strong> {appointment.date}</p>
-            <p><strong>From:</strong> {appointment.time_from}</p>
-            <p><strong>To:</strong> {appointment.time_to}</p>
-            <p><strong>Doctor:</strong> {appointment.doctor.full_name} ({appointment.doctor.specialization})</p>
-            <p><strong>Comments:</strong> {appointment.comments}</p>
-            <button className="show-edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
-            <button className="show-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-      <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
-      <button className="show-logout-button" onClick={handleLogout}>Logout</button>
-      {message && (
-        <p className="show-message-text">
-          {message}
-        </p>
-      )}
+        {appointments.length === 0 && !message ? (
+          <div className="show-empty-state">
+            <div className="show-empty-icon">📅</div>
+            <h3 className="show-empty-title">No Appointments Yet</h3>
+            <p className="show-empty-text">
+              You haven't scheduled any appointments yet. Click "Back to Manage Appointments" to create your first appointment!
+            </p>
+          </div>
+        ) : (
+          <ul className="show-appointment-list">
+            {appointments.map((appointment) => (
+              <li key={appointment.id} className="show-appointment-item">
+                <p><strong>Date:</strong> {appointment.date}</p>
+                <p><strong>From:</strong> {appointment.time_from}</p>
+                <p><strong>To:</strong> {appointment.time_to}</p>
+                <p><strong>Doctor:</strong> {appointment.doctor.full_name} ({appointment.doctor.specialization})</p>
+                <p><strong>Comments:</strong> {appointment.comments}</p>
+                <button className="show-edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
+                <button className="show-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        )}
+        
+        <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
+        <button className="show-logout-button" onClick={handleLogout}>Logout</button>
+        {message && (
+          <p className="show-message-text">
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
