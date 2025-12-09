@@ -49,11 +49,3 @@ python api.py
 cd frontend
 npm start
 ```
-
-The application will be available at `http://localhost:3000`
-
-## Technologies
-- **Backend:** Flask, SQLAlchemy, Flask-JWT-Extended, Flask-Bcrypt
-- **Frontend:** React 18, React Router, CSS3
-- **Database:** SQLite
-- **Authentication:** JWT tokens with bcrypt hashing
