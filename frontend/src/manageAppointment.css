@@ -1,51 +1,125 @@
+/* Manage Appointments - Medical Theme Dashboard */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.manage-bg {
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 50%, #ffffff 100%);
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
 .manage-container {
   max-width: 500px;
-  margin: 0 auto;
+  width: 100%;
   padding: 50px;
-  background-color: #f0f8ff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 102, 204, 0.3);
+  border: 3px solid rgba(0, 102, 204, 0.1);
   text-align: center;
 }
 
 .manage-title {
   margin-bottom: 40px;
-  font-size: 2em;
-  color: #333;
+  font-size: 2.2em;
+  color: #0066cc;
+  font-weight: 700;
 }
 
 .manage-button {
   width: 100%;
-  padding: 10px;
+  padding: 14px;
   font-size: 1.1em;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  margin-bottom: 10px;
-  transition: background-color 0.3s ease;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .manage-add-appointment-button {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
 }
 
 .manage-add-appointment-button:hover {
-  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 102, 204, 0.5);
+  background: linear-gradient(135deg, #0052a3 0%, #0080d6 100%);
 }
 
-.manage-show-appointment-button, .manage-account-button {
-  background-color: #008CBA;
+.manage-show-appointment-button {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
 }
 
-.manage-show-appointment-button:hover, .manage-account-button:hover {
-  background-color: #007bb5;
+.manage-show-appointment-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.5);
+  background: linear-gradient(135deg, #138496 0%, #1c9d77 100%);
+}
+
+.manage-account-button {
+  background: linear-gradient(135deg, #6610f2 0%, #6f42c1 100%);
+}
+
+.manage-account-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 16, 242, 0.5);
+  background: linear-gradient(135deg, #520dc2 0%, #59359a 100%);
 }
 
 .manage-logout-button, .manage-back-button {
-  background-color: #ec2618;
+  background-color: #ffffff;
+  color: #0066cc;
+  border: 2px solid #e2e8f0;
 }
 
 .manage-logout-button:hover, .manage-back-button:hover {
-  background-color: #d32f2f;
+  background-color: #f8f9fa;
+  border-color: #0066cc;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+}
+
+.manage-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .manage-bg {
+    padding: 20px 10px;
+  }
+  
+  .manage-container {
+    padding: 35px 25px;
+  }
+  
+  .manage-title {
+    font-size: 1.8em;
+    margin-bottom: 30px;
+  }
+  
+  .manage-button {
+    padding: 12px;
+    font-size: 1em;
+  }
 }

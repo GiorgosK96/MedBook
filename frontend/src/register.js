@@ -122,9 +122,10 @@ function Register() {
   };
 
   return (
-    <div className="register-container">
-      <h2 className="register-title">User Registration</h2>
-      <form onSubmit={handleSubmit} noValidate className="register-form">
+    <div className="register-bg">
+      <div className="register-container">
+        <h2 className="register-title">User Registration</h2>
+        <form onSubmit={handleSubmit} noValidate className="register-form">
         <div className="register-form-group">
           <label>Full Name:</label>
           <input
@@ -205,6 +206,7 @@ function Register() {
       </form>
       <button onClick={handleBackToLanding} className="register-back-button">Back to Landing Page</button>
       {message && <p className="register-message-text">{message}</p>}
+      </div>
     </div>
   );
 }

@@ -1,43 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.account-bg {
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 50%, #ffffff 100%);
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
 .account-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f0f8ff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
+  max-width: 600px;
+  width: 100%;
+  padding: 50px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 102, 204, 0.3);
+  border: 3px solid rgba(0, 102, 204, 0.1);
+  text-align: center;
+}
+
+.account-container h2 {
+  margin-bottom: 30px;
+  font-size: 2em;
+  color: #0066cc;
+  font-weight: 700;
+}
+
+.account-details {
+  text-align: left;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #e2e8f0;
+}
+
+.account-details p {
+  font-size: 1.1em;
+  margin: 15px 0;
+  color: #2c5282;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border-left: 4px solid #0066cc;
+}
+
+.account-details p strong {
+  color: #0066cc;
+  font-weight: 700;
+  display: inline-block;
+  min-width: 140px;
+}
+
+.account-logout-button, .show-back-to-manage-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.show-back-to-manage-button {
+  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+}
+
+.show-back-to-manage-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.6);
+  background: linear-gradient(135deg, #0052a3 0%, #0080d6 100%);
+}
+
+.account-logout-button {
+  background-color: #ffffff;
+  color: #0066cc;
+  border: 2px solid #e2e8f0;
+}
+
+.account-logout-button:hover {
+  background-color: #f8f9fa;
+  border-color: #0066cc;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+}
+
+.account-logout-button:active,
+.show-back-to-manage-button:active {
+  transform: translateY(0);
+}
+
+.account-error-text {
+  color: #dc3545;
+  background-color: #ffebee;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid #dc3545;
+  margin-top: 20px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .account-bg {
+    padding: 20px 10px;
+  }
+  
+  .account-container {
+    padding: 35px 25px;
+  }
+  
+  .account-container h2 {
+    font-size: 1.6em;
+    margin-bottom: 25px;
   }
   
   .account-details {
-    text-align: left;
-    margin-top: 20px;
+    padding: 20px;
   }
   
   .account-details p {
-    font-size: 1.2em;
-    margin: 10px 0;
-  }
-  
-  .account-logout-button, .show-back-to-manage-button {
-    width: 100%;
+    font-size: 1em;
     padding: 10px;
-    font-size: 1.1em;
-    background-color: #ec2618;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
   }
   
-  .account-logout-button:hover, .show-back-to-manage-button:hover {
-    background-color: #d32f2f;
+  .account-details p strong {
+    display: block;
+    margin-bottom: 5px;
+    min-width: auto;
   }
   
-  .account-error-text {
-    color: red;
-    margin-top: 20px;
-    font-size: 1.2em;
+  .account-logout-button,
+  .show-back-to-manage-button {
+    padding: 12px;
+    font-size: 1em;
   }
+}
   

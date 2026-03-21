@@ -31,6 +31,15 @@ function DoctorsAppointments() {
   }, []);
 
   const handleDeleteAppointment = (appointmentId) => {
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.'
+    );
+    
+    if (!confirmed) {
+      return; // User cancelled, do nothing
+    }
+
     fetch(`/doctorAppointments/${appointmentId}`, {
       method: 'DELETE',
       headers: {
@@ -66,31 +75,43 @@ function DoctorsAppointments() {
   };
 
   return (
-    <div className="doctors-appointment-container">
-      <h2 className="doctors-appointment-title">Doctor's Appointments</h2>
+    <div className="doctors-appointment-bg">
+      <div className="doctors-appointment-container">
+        <h2 className="doctors-appointment-title">Doctor's Appointments</h2>
 
-      <ul className="doctors-appointment-list">
-        {appointments.map((appointment) => (
-          <li key={appointment.id} className="doctors-appointment-item">
-            <p><strong>Patient Name:</strong> {appointment.patient.full_name}</p>
-            <p><strong>Email:</strong> {appointment.patient.email}</p>
-            <p><strong>Date:</strong> {appointment.date}</p>
-            <p><strong>From:</strong> {appointment.time_from}</p>
-            <p><strong>To:</strong> {appointment.time_to}</p>
-            <p><strong>Comments:</strong> {appointment.comments}</p>
-            <button className="doctors-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+        {appointments.length === 0 && !message ? (
+          <div className="doctors-empty-state">
+            <div className="doctors-empty-icon">🩺</div>
+            <h3 className="doctors-empty-title">No Appointments Scheduled</h3>
+            <p className="doctors-empty-text">
+              You don't have any appointments scheduled yet. Patients will see your available slots and can book appointments with you.
+            </p>
+          </div>
+        ) : (
+          <ul className="doctors-appointment-list">
+            {appointments.map((appointment) => (
+              <li key={appointment.id} className="doctors-appointment-item">
+                <p><strong>Patient Name:</strong> {appointment.patient.full_name}</p>
+                <p><strong>Email:</strong> {appointment.patient.email}</p>
+                <p><strong>Date:</strong> {appointment.date}</p>
+                <p><strong>From:</strong> {appointment.time_from}</p>
+                <p><strong>To:</strong> {appointment.time_to}</p>
+                <p><strong>Comments:</strong> {appointment.comments}</p>
+                <button className="doctors-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        )}
 
-      <button className="doctors-logout-button" onClick={handleAccount}>Account</button>
-      <button className="doctors-logout-button" onClick={handleLogout}>Logout</button>
+        <button className="doctors-account-button" onClick={handleAccount}>Account</button>
+        <button className="doctors-logout-button" onClick={handleLogout}>Logout</button>
 
-      {message && (
-        <p className="doctors-message-text">
-          {message}
-        </p>
-      )}
+        {message && (
+          <p className="doctors-message-text">
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

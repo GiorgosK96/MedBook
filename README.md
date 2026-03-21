@@ -1,39 +1,50 @@
 # Medical Appointment Management System
-An application for patients to book and manage their medical appointments with doctors using Flask for the backend and React for the frontend.
+
+A web-based system for patients to book and manage their medical appointments with doctors using Flask for the backend and React for the frontend.
 
 ## Features
-Secure user authentication.
+- Secure user authentication (patients & doctors)
+- Patients can book, update, and cancel appointments
+- Doctors can manage their schedules and appointments
+- Real-time appointment validation (no duplicate bookings)
 
-Patients can book, update, and cancel appointments.
+## Installation
 
-Doctors can manage their schedules and appointments.  
+### 1. Clone the Repository
+```bash
+git clone https://github.com/GiorgosK96/Medical_Appointment_App.git
+cd Medical_Appointment_App
+```
 
-Real-time appointment validation (no duplicate bookings).
+### 2. Install Backend Dependencies
+```bash
+cd backend
+pip install -r ../requirements.txt
+```
 
-## Installation 
-1) Clone the Repository
-https://github.com/GiorgosK96/Medical_Appointment_App.git     
-cd patient_app
-
-
-3) Install Backend Dependencies       
-cd backend       
-pip install -r requirements.txt
-
-4) Install Frontend Dependencies     
-cd frontend    
+### 3. Install Frontend Dependencies
+```bash
+cd frontend
 npm install
+```
 
-5) Set Up Environment Variables      
-Create a `.env` file in the backend directory with:    
-SQLALCHEMY_DATABASE_URI=your_database_url   
-JWT_SECRET_KEY=your_secret_key
+### 4. Set Up Environment Variables
+Create a `.env` file in the backend directory with:
+```
+SQLALCHEMY_DATABASE_URI=sqlite:///appointments.db
+JWT_SECRET_KEY=your_secret_key_here
+```
 
-6) Start the Application     
-- Start the backend    
-cd backend     
+### 5. Start the Application
+
+**Start the backend:**
+```bash
+cd backend
 python api.py
+```
 
-- Start the frontend    
-cd frontend    
-npm start   
+**Start the frontend (in a new terminal):**
+```bash
+cd frontend
+npm start
+```

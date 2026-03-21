@@ -23,20 +23,22 @@ function ManageAppointment() {
   };
 
   return (
-    <div className="manage-container">
-      <h2 className="manage-title">Manage Appointments</h2>
-      <button className="manage-button manage-add-appointment-button" onClick={handleCreateAppointment}>
-        Add Appointment
-      </button>
-      <button className="manage-button manage-show-appointment-button" onClick={handleShowAppointment}>
-        Show Appointment
-      </button>
-      <button className="manage-button manage-account-button" onClick={handleAccount}>
-        Account
-      </button>
-      <button className="manage-button manage-logout-button" onClick={handleLogout}>
-        Logout
-      </button>
+    <div className="manage-bg">
+      <div className="manage-container">
+        <h2 className="manage-title">Manage Appointments</h2>
+        <button className="manage-button manage-add-appointment-button" onClick={handleCreateAppointment}>
+          Add Appointment
+        </button>
+        <button className="manage-button manage-show-appointment-button" onClick={handleShowAppointment}>
+          Show Appointment
+        </button>
+        <button className="manage-button manage-account-button" onClick={handleAccount}>
+          Account
+        </button>
+        <button className="manage-button manage-logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
