@@ -7,7 +7,6 @@ A web-based system for patients to book and manage their medical appointments wi
 - Patients can book, update, and cancel appointments
 - Doctors can manage their schedules and appointments
 - Real-time appointment validation (no duplicate bookings)
-- Clean, modern medical-themed UI
 
 ## Installation
 
