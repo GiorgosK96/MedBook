@@ -1,119 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ShowAppointment.css';
+import { useLanguage } from './LanguageContext';
 
 function ShowAppointment() {
+  const { t } = useLanguage();
   const [appointments, setAppointments] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/ShowAppointment', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Failed to fetch appointments');
-        }
-      })
-      .then(data => {
-        setAppointments(data.appointments);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        setMessage('Failed to load appointments. Please try again later.');
-      });
-  }, []);
+    fetch('/ShowAppointment', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => { if (r.ok) return r.json(); throw new Error(); })
+      .then(data => setAppointments(data.appointments))
+      .catch(() => setMessage(t.errorOccurred));
+  }, [t.errorOccurred]);
 
-  const handleEditAppointment = (appointmentId) => {
-    navigate(`/UpdateAppointment/${appointmentId}`);
+  const handleDelete = (id) => {
+    if (!window.confirm(t.confirmDelete)) return;
+    fetch(`/ShowAppointment/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => { if (r.ok) r.json().then(d => { setMessage(d.message); setAppointments(appointments.filter(a => a.id !== id)); }); else r.json().then(d => setMessage(d.message)); })
+      .catch(() => setMessage(t.errorOccurred));
   };
 
-  const handleDeleteAppointment = (appointmentId) => {
-    // Confirmation dialog
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.'
-    );
-    
-    if (!confirmed) {
-      return; // User cancelled, do nothing
-    }
-
-    fetch(`/ShowAppointment/${appointmentId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          response.json().then(data => {
-            setMessage(data.message);  
-            setAppointments(appointments.filter(appointment => appointment.id !== appointmentId));
-          });
-        } else {
-          response.json().then(data => {
-            setMessage(data.message);
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('Error deleting appointment:', error);
-        setMessage('An error occurred');
-      });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    navigate('/login');
-  };
-
-  const handleBackToManage = () => {
-    navigate('/manageAppointment');
-  };
+  const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role'); navigate('/login'); };
 
   return (
-    <div className="show-appointment-bg">
-      <div className="show-appointment-container">
-        <h2 className="show-appointment-title">Your Appointments</h2>
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 py-10 font-sans">
+      <div className="max-w-xl mx-auto">
+        <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.yourAppointments}</h2>
 
         {appointments.length === 0 && !message ? (
-          <div className="show-empty-state">
-            <div className="show-empty-icon">📅</div>
-            <h3 className="show-empty-title">No Appointments Yet</h3>
-            <p className="show-empty-text">
-              You haven't scheduled any appointments yet. Click "Back to Manage Appointments" to create your first appointment!
-            </p>
+          <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
+            <p className="text-3xl mb-3 opacity-40">📅</p>
+            <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsYet}</p>
+            <p className="text-sm text-slate-500">{t.noAppointmentsDesc}</p>
           </div>
         ) : (
-          <ul className="show-appointment-list">
-            {appointments.map((appointment) => (
-              <li key={appointment.id} className="show-appointment-item">
-                <p><strong>Date:</strong> {appointment.date}</p>
-                <p><strong>From:</strong> {appointment.time_from}</p>
-                <p><strong>To:</strong> {appointment.time_to}</p>
-                <p><strong>Doctor:</strong> {appointment.doctor.full_name} ({appointment.doctor.specialization})</p>
-                <p><strong>Comments:</strong> {appointment.comments}</p>
-                <button className="show-edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
-                <button className="show-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
-              </li>
+          <div className="space-y-3 mb-6">
+            {appointments.map(a => (
+              <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="grid grid-cols-[80px_1fr] gap-y-1.5 text-sm">
+                  <span className="font-medium text-slate-500">{t.date}</span>
+                  <span className="text-slate-800">{a.date}</span>
+                  <span className="font-medium text-slate-500">{t.time}</span>
+                  <span className="text-slate-800">{a.time_from} – {a.time_to}</span>
+                  <span className="font-medium text-slate-500">{t.doctor}</span>
+                  <span className="text-slate-800">{a.doctor.full_name} ({a.doctor.specialization})</span>
+                  {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
+                </div>
+                <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+                  <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>
+                  <button onClick={() => handleDelete(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
-        
-        <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
-        <button className="show-logout-button" onClick={handleLogout}>Logout</button>
-        {message && (
-          <p className="show-message-text">
-            {message}
-          </p>
-        )}
+
+        <button onClick={() => navigate('/manageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
+        <button onClick={handleLogout} className="w-full mt-2 py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
+        {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>
     </div>
   );
