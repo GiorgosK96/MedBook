@@ -1,211 +1,121 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import './register.css';
+import { useLanguage } from './LanguageContext';
 
 function Register() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    full_name: '',
-    username: '',
-    email: '',
-    password: '',
-    role: 'patient',
-    specialization: ''
+    full_name: '', username: '', email: '', password: '', role: 'patient', specialization: ''
   });
-
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const specializations = [
-    'Cardiologist',
-    'Dermatologist',
-    'Neurologist',
-    'Orthopedist',
-    'Pediatrician',
-    'Ophthalmologist',
-    'Oncologist',
-    'Gastroenterologist',
-    'Endocrinologist',
-    'Psychiatrist',
-    'Urologist',
-    'Gynecologist',
+    'Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist',
+    'Pediatrician', 'Ophthalmologist', 'Oncologist', 'Gastroenterologist',
+    'Endocrinologist', 'Psychiatrist', 'Urologist', 'Gynecologist',
   ];
-  
-
-  const validatePassword = (password) => {
-    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
-  };
-
-  const validateEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
   const validate = () => {
-    const newErrors = {};
-
-    if (!formData.full_name) {
-      newErrors.full_name = 'Full name is required';
-    } else if (formData.full_name.length < 2) {
-      newErrors.full_name = 'Full name must be at least 2 characters';
-    }
-
-    if (!formData.username) {
-      newErrors.username = 'Username is required';
-    }
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Email format is invalid';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must contain both letters and numbers';
-    }
-
-    if (formData.role === 'doctor' && !formData.specialization) {
-      newErrors.specialization = 'Specialization is required for doctors';
-    }
-
-    return newErrors;
+    const e = {};
+    if (!formData.full_name) e.full_name = t.fullNameRequired;
+    else if (formData.full_name.length < 2) e.full_name = t.fullNameMin;
+    if (!formData.username) e.username = t.usernameRequired;
+    if (!formData.email) e.email = t.emailRequired;
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email = t.emailInvalid;
+    if (!formData.password) e.password = t.passwordRequired;
+    else if (formData.password.length < 6) e.password = t.passwordMin;
+    else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(formData.password)) e.password = t.passwordFormat;
+    if (formData.role === 'doctor' && !formData.specialization) e.specialization = t.specializationRequired;
+    return e;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const newErrors = validate();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     fetch('/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData), 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
     })
-      .then((response) => response.json())
+      .then((r) => r.json())
       .then((data) => {
-        if (data.error) {
-          setMessage(data.error); 
-        } else {
-          setMessage(data.message); 
-          navigate("/login"); 
-        }
+        if (data.error) setMessage(data.error);
+        else { setMessage(data.message); navigate("/login"); }
       })
-      .catch((error) => {
-        console.error('Error:', error);
-        setMessage('An error occurred.');
-      });
+      .catch(() => setMessage(t.errorOccurred));
   };
 
-  const handleLoginRedirect = () => {
-    navigate("/login");
-  };
-
-  const handleBackToLanding = () => {
-    navigate("/");
-  };
+  const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
 
   return (
-    <div className="register-bg">
-      <div className="register-container">
-        <h2 className="register-title">User Registration</h2>
-        <form onSubmit={handleSubmit} noValidate className="register-form">
-        <div className="register-form-group">
-          <label>Full Name:</label>
-          <input
-            type="text"
-            name="full_name"
-            value={formData.full_name}
-            onChange={handleChange}
-            required
-          />
-          {errors.full_name && <p className="register-error-text">{errors.full_name}</p>}
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center px-6 py-10 font-sans">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <span className="text-2xl font-bold text-blue-700">{t.appName}</span>
         </div>
-        <div className="register-form-group">
-          <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        {errors.username && <p className="register-error-text">{errors.username}</p>}
-        </div>
-        <div className="register-form-group">
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          {errors.email && <p className="register-error-text">{errors.email}</p>}
-        </div>
-        <div className="register-form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-         {errors.password && <p className="register-error-text">{errors.password}</p>}
-        </div>
-        <div className="register-form-group">
-          <label>Role:</label>
-          <select name="role" value={formData.role} onChange={handleChange}>
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-          </select>
-        </div>
+        <h2 className="text-lg font-semibold text-slate-800 mb-5 text-center">{t.registerTitle}</h2>
 
-        {}
-        {formData.role === 'doctor' && (
-          <div className="register-form-group">
-            <label>Specialization:</label>
-            <select 
-              name="specialization"
-              value={formData.specialization}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Specialization</option>
-              {specializations.map((spec, index) => (
-                <option key={index} value={spec}>
-                  {spec}
-                </option>
-              ))}
-            </select>
-            {errors.specialization && <p className="register-error-text">{errors.specialization}</p>}
+        <form onSubmit={handleSubmit} noValidate className="bg-white border border-slate-200 rounded-xl p-7 shadow-sm space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.fullName}</label>
+            <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} required className={inputClass} />
+            {errors.full_name && <p className="text-red-600 text-xs mt-1">{errors.full_name}</p>}
           </div>
-        )}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.username}</label>
+            <input type="text" name="username" value={formData.username} onChange={handleChange} required className={inputClass} />
+            {errors.username && <p className="text-red-600 text-xs mt-1">{errors.username}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.email}</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required className={inputClass} />
+            {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.password}</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} required className={inputClass} />
+            {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.role}</label>
+            <select name="role" value={formData.role} onChange={handleChange} className={inputClass}>
+              <option value="patient">{t.patient}</option>
+              <option value="doctor">{t.doctor}</option>
+            </select>
+          </div>
+          {formData.role === 'doctor' && (
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.specialization}</label>
+              <select name="specialization" value={formData.specialization} onChange={handleChange} required className={inputClass}>
+                <option value="">{t.selectSpecialization}</option>
+                {specializations.map((spec, i) => <option key={i} value={spec}>{spec}</option>)}
+              </select>
+              {errors.specialization && <p className="text-red-600 text-xs mt-1">{errors.specialization}</p>}
+            </div>
+          )}
+          <button type="submit" className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+            {t.register}
+          </button>
+          <button type="button" onClick={() => navigate("/login")} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
+            {t.alreadyHaveAccountSignIn}
+          </button>
+        </form>
 
-        <button type="submit" className="register-button">Register</button>
-        <div>
-          <button onClick={handleLoginRedirect} className="register-login-redirect-button">Go to Login</button>
-        </div>
-      </form>
-      <button onClick={handleBackToLanding} className="register-back-button">Back to Landing Page</button>
-      {message && <p className="register-message-text">{message}</p>}
+        <button onClick={() => navigate("/")} className="w-full mt-3 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+          {t.backToHome}
+        </button>
+
+        {message && (
+          <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">{message}</p>
+        )}
       </div>
     </div>
   );

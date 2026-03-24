@@ -1,5 +1,6 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { LanguageProvider } from './LanguageContext';
+import LangToggle from './components/LangToggle';
 import LandingPage from './LandingPage';
 import Register from './register';
 import Login from './login';
@@ -12,40 +13,24 @@ import Account from './Account';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Default Route: Redirect to LandingPage */}
-        <Route path="/" element={<Navigate replace to="/LandingPage" />} />
-
-        {/* Landing Page */}
-        <Route path="/LandingPage" element={<LandingPage />} />
-
-        {/* Registration Page */}
-        <Route path="/register" element={<Register />} />
-
-        {/* Login Page */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Manage Appointments */}
-        <Route path="/ManageAppointment" element={<ManageAppointment />} />
-
-        {/* Add Appointment */}
-        <Route path="/AddAppointment" element={<AddAppointment />} />
-
-        {/* Show Appointment */}
-        <Route path="/ShowAppointment" element={<ShowAppointment />} />
-
-        {/* Update Appointment */}
-        <Route path="/UpdateAppointment/:appointmentId" element={<UpdateAppointment />} />
-
-        {/* Doctors Appointment */}
-        <Route path="/DoctorsAppointments" element={<DoctorsAppointments />} />
-
-        {/*Account*/}
-        <Route path="/Account" element={<Account/>} />
-
-      </Routes>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <div className="h-1 bg-blue-600 w-full fixed top-0 left-0 z-50" />
+        <LangToggle />
+        <Routes>
+          <Route path="/" element={<Navigate replace to="/LandingPage" />} />
+          <Route path="/LandingPage" element={<LandingPage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/ManageAppointment" element={<ManageAppointment />} />
+          <Route path="/AddAppointment" element={<AddAppointment />} />
+          <Route path="/ShowAppointment" element={<ShowAppointment />} />
+          <Route path="/UpdateAppointment/:appointmentId" element={<UpdateAppointment />} />
+          <Route path="/DoctorsAppointments" element={<DoctorsAppointments />} />
+          <Route path="/Account" element={<Account />} />
+        </Routes>
+      </Router>
+    </LanguageProvider>
   );
 }
 

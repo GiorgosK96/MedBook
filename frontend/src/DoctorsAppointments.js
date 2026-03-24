@@ -1,116 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './DoctorsAppointments.css';
+import { useLanguage } from './LanguageContext';
 
 function DoctorsAppointments() {
+  const { t } = useLanguage();
   const [appointments, setAppointments] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/doctorAppointments', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Failed to fetch appointments');
-        }
-      })
-      .then(data => {
-        setAppointments(data.appointments);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        setMessage('Failed to load appointments. Please try again later.');
-      });
-  }, []);
+    fetch('/doctorAppointments', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => { if (r.ok) return r.json(); throw new Error(); })
+      .then(data => setAppointments(data.appointments))
+      .catch(() => setMessage(t.errorOccurred));
+  }, [t.errorOccurred]);
 
-  const handleDeleteAppointment = (appointmentId) => {
-    // Confirmation dialog
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.'
-    );
-    
-    if (!confirmed) {
-      return; // User cancelled, do nothing
-    }
-
-    fetch(`/doctorAppointments/${appointmentId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          response.json().then(data => {
-            setMessage(data.message); 
-            setAppointments(appointments.filter(appointment => appointment.id !== appointmentId));
-          });
-        } else {
-          response.json().then(data => {
-            setMessage(data.message); 
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('Error deleting appointment:', error);
-        setMessage('An error occurred');
-      });
+  const handleDelete = (id) => {
+    if (!window.confirm(t.confirmDelete)) return;
+    fetch(`/doctorAppointments/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => { if (r.ok) r.json().then(d => { setMessage(d.message); setAppointments(appointments.filter(a => a.id !== id)); }); else r.json().then(d => setMessage(d.message)); })
+      .catch(() => setMessage(t.errorOccurred));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    navigate('/login');
-  };
-
-  const handleAccount = () => {
-    navigate('/account');
-  };
+  const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role'); navigate('/login'); };
 
   return (
-    <div className="doctors-appointment-bg">
-      <div className="doctors-appointment-container">
-        <h2 className="doctors-appointment-title">Doctor's Appointments</h2>
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 py-10 font-sans">
+      <div className="max-w-xl mx-auto">
+        <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.doctorAppointmentsTitle}</h2>
 
         {appointments.length === 0 && !message ? (
-          <div className="doctors-empty-state">
-            <div className="doctors-empty-icon">🩺</div>
-            <h3 className="doctors-empty-title">No Appointments Scheduled</h3>
-            <p className="doctors-empty-text">
-              You don't have any appointments scheduled yet. Patients will see your available slots and can book appointments with you.
-            </p>
+          <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
+            <p className="text-3xl mb-3 opacity-40">🩺</p>
+            <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsScheduled}</p>
+            <p className="text-sm text-slate-500">{t.noAppointmentsScheduledDesc}</p>
           </div>
         ) : (
-          <ul className="doctors-appointment-list">
-            {appointments.map((appointment) => (
-              <li key={appointment.id} className="doctors-appointment-item">
-                <p><strong>Patient Name:</strong> {appointment.patient.full_name}</p>
-                <p><strong>Email:</strong> {appointment.patient.email}</p>
-                <p><strong>Date:</strong> {appointment.date}</p>
-                <p><strong>From:</strong> {appointment.time_from}</p>
-                <p><strong>To:</strong> {appointment.time_to}</p>
-                <p><strong>Comments:</strong> {appointment.comments}</p>
-                <button className="doctors-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
-              </li>
+          <div className="space-y-3 mb-6">
+            {appointments.map(a => (
+              <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="grid grid-cols-[100px_1fr] gap-y-1.5 text-sm">
+                  <span className="font-medium text-slate-500">{t.patientName}</span>
+                  <span className="text-slate-800">{a.patient.full_name}</span>
+                  <span className="font-medium text-slate-500">{t.email}</span>
+                  <span className="text-slate-800">{a.patient.email}</span>
+                  <span className="font-medium text-slate-500">{t.date}</span>
+                  <span className="text-slate-800">{a.date}</span>
+                  <span className="font-medium text-slate-500">{t.time}</span>
+                  <span className="text-slate-800">{a.time_from} – {a.time_to}</span>
+                  {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100">
+                  <button onClick={() => handleDelete(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
 
-        <button className="doctors-account-button" onClick={handleAccount}>Account</button>
-        <button className="doctors-logout-button" onClick={handleLogout}>Logout</button>
-
-        {message && (
-          <p className="doctors-message-text">
-            {message}
-          </p>
-        )}
+        <button onClick={() => navigate('/account')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.account}</button>
+        <button onClick={handleLogout} className="w-full mt-2 py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
+        {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>
     </div>
   );
