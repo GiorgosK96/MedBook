@@ -47,9 +47,14 @@ export default function Navbar() {
           </>
         )}
         {role === 'doctor' && (
-          <NavLink to="/Account" className={navLinkClass}>
-            {t.account}
-          </NavLink>
+          <>
+            <NavLink to="/DoctorAvailability" className={navLinkClass}>
+              {t.availability}
+            </NavLink>
+            <NavLink to="/Account" className={navLinkClass}>
+              {t.account}
+            </NavLink>
+          </>
         )}
       </nav>
 

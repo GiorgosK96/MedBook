@@ -35,6 +35,17 @@ class Doctor(Person):
     def __repr__(self):
         return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
 
+class DoctorAvailability(db.Model):
+    __tablename__ = 'doctor_availability'
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
+    day_of_week = db.Column(db.Integer, nullable=False)  # 0=Monday, 6=Sunday
+    start_time = db.Column(db.String(5), nullable=False)  # "09:00"
+    end_time = db.Column(db.String(5), nullable=False)    # "17:00"
+
+    doctor = db.relationship('Doctor', backref='availabilities')
+
+
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)

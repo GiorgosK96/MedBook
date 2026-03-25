@@ -12,6 +12,7 @@ import AddAppointment from './AddAppointment';
 import ShowAppointment from './ShowAppointment';
 import UpdateAppointment from './UpdateAppointment';
 import DoctorsAppointments from './DoctorsAppointments';
+import DoctorAvailability from './DoctorAvailability';
 import Account from './Account';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/ShowAppointment" element={<ProtectedRoute allowedRole="client"><ShowAppointment /></ProtectedRoute>} />
           <Route path="/UpdateAppointment/:appointmentId" element={<ProtectedRoute allowedRole="client"><UpdateAppointment /></ProtectedRoute>} />
           <Route path="/DoctorsAppointments" element={<ProtectedRoute allowedRole="doctor"><DoctorsAppointments /></ProtectedRoute>} />
+          <Route path="/DoctorAvailability" element={<ProtectedRoute allowedRole="doctor"><DoctorAvailability /></ProtectedRoute>} />
           <Route path="/Account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         </Routes>
       </Router>

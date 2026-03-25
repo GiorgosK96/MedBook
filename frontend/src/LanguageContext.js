@@ -99,6 +99,23 @@ const translations = {
     statusConfirmed: 'Confirmed',
     statusDeclined: 'Declined',
 
+    // Availability
+    availability: 'Availability',
+    availabilityTitle: 'Weekly Availability',
+    availabilitySaved: 'Availability saved successfully',
+    addTimeWindow: 'Add hours',
+    remove: 'Remove',
+    noSlotsAvailable: 'No available slots for this date',
+    selectDoctorFirst: 'Select a doctor first',
+    selectDateFirst: 'Select a date',
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday',
+
     // Account
     accountTitle: 'Account',
     back: 'Back',
@@ -207,6 +224,23 @@ const translations = {
     statusPending: 'Σε αναμονή',
     statusConfirmed: 'Επιβεβαιωμένο',
     statusDeclined: 'Απορρίφθηκε',
+
+    // Availability
+    availability: 'Διαθεσιμότητα',
+    availabilityTitle: 'Εβδομαδιαία Διαθεσιμότητα',
+    availabilitySaved: 'Η διαθεσιμότητα αποθηκεύτηκε επιτυχώς',
+    addTimeWindow: 'Προσθήκη ωρών',
+    remove: 'Αφαίρεση',
+    noSlotsAvailable: 'Δεν υπάρχουν διαθέσιμες ώρες για αυτή την ημερομηνία',
+    selectDoctorFirst: 'Επιλέξτε πρώτα γιατρό',
+    selectDateFirst: 'Επιλέξτε ημερομηνία',
+    monday: 'Δευτέρα',
+    tuesday: 'Τρίτη',
+    wednesday: 'Τετάρτη',
+    thursday: 'Πέμπτη',
+    friday: 'Παρασκευή',
+    saturday: 'Σάββατο',
+    sunday: 'Κυριακή',
 
     // Account
     accountTitle: 'Λογαριασμός',

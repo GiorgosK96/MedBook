@@ -1,30 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
+import { formatSlot } from './utils/timeSlots';
 import Spinner from './components/Spinner';
-
-const TIME_SLOTS = [
-  '08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
-  '12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30',
-  '16:00','16:30','17:00','17:30','18:00','18:30','19:00',
-];
-
-function formatSlot(t) {
-  const [h, m] = t.split(':');
-  const d = new Date(); d.setHours(+h, +m);
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-}
 
 export const AddAppointment = () => {
   const { t } = useLanguage();
   const showToast = useToast();
+  const [doctorId, setDoctorId] = useState('');
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
-  const [doctorId, setDoctorId] = useState('');
   const [comment, setComment] = useState('');
   const [doctors, setDoctors] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     fetch('/doctors', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
@@ -32,6 +23,19 @@ export const AddAppointment = () => {
     .catch(() => showToast(t.errorOccurred, 'error'))
     .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
+
+  useEffect(() => {
+    if (!doctorId || !date) { setAvailableSlots(null); return; }
+    setLoadingSlots(true);
+    setTimeFrom(''); setTimeTo('');
+    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(r => r.json())
+      .then(data => setAvailableSlots(data.slots))
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setLoadingSlots(false));
+  }, [doctorId, date, showToast, t.errorOccurred]);
 
   const handleSubmit = () => {
     if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
@@ -43,7 +47,7 @@ export const AddAppointment = () => {
     .then(r => r.json())
     .then(data => {
       if (data.error) { showToast(`Error: ${data.error}`, 'error'); }
-      else { showToast(data.message, 'success'); setDate(''); setTimeFrom(''); setTimeTo(''); setDoctorId(''); setComment(''); }
+      else { showToast(data.message, 'success'); setDate(''); setTimeFrom(''); setTimeTo(''); setDoctorId(''); setComment(''); setAvailableSlots(null); }
     })
     .catch(() => showToast(t.errorOccurred, 'error'));
   };
@@ -56,7 +60,7 @@ export const AddAppointment = () => {
   }, {});
   const specializations = Object.keys(grouped).sort();
 
-  const toSlots = timeFrom ? TIME_SLOTS.filter(s => s > timeFrom) : TIME_SLOTS;
+  const toSlots = timeFrom && availableSlots ? availableSlots.filter(s => s > timeFrom) : [];
 
   if (loading) {
     return (
@@ -72,26 +76,6 @@ export const AddAppointment = () => {
         <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.addAppointmentTitle}</h2>
         <div className="bg-white border border-slate-200 rounded-xl p-7 shadow-sm space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.date}</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className={inputClass} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.from}</label>
-              <select value={timeFrom} onChange={(e) => { setTimeFrom(e.target.value); setTimeTo(''); }} className={inputClass}>
-                <option value="">--</option>
-                {TIME_SLOTS.map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.to}</label>
-              <select value={timeTo} onChange={(e) => setTimeTo(e.target.value)} className={inputClass}>
-                <option value="">--</option>
-                {toSlots.map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.doctor}</label>
             <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} className={inputClass}>
               <option value="">{t.selectDoctor}</option>
@@ -102,6 +86,29 @@ export const AddAppointment = () => {
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.date}</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} disabled={!doctorId} className={`${inputClass} ${!doctorId ? 'opacity-50' : ''}`} />
+            {!doctorId && <p className="text-xs text-slate-400 mt-1">{t.selectDoctorFirst}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.from}</label>
+              <select value={timeFrom} onChange={(e) => { setTimeFrom(e.target.value); setTimeTo(''); }} disabled={!availableSlots} className={`${inputClass} ${!availableSlots ? 'opacity-50' : ''}`}>
+                <option value="">--</option>
+                {availableSlots && availableSlots.map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.to}</label>
+              <select value={timeTo} onChange={(e) => setTimeTo(e.target.value)} disabled={!timeFrom} className={`${inputClass} ${!timeFrom ? 'opacity-50' : ''}`}>
+                <option value="">--</option>
+                {toSlots.map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
+              </select>
+            </div>
+          </div>
+          {loadingSlots && <p className="text-xs text-slate-400 text-center">{t.selectDateFirst}...</p>}
+          {availableSlots && availableSlots.length === 0 && <p className="text-xs text-amber-600 text-center">{t.noSlotsAvailable}</p>}
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.comments}</label>
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} className={`${inputClass} resize-y`} />

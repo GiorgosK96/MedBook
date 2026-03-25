@@ -7,7 +7,7 @@ Usage:
 """
 
 from api import app
-from models import db, bcrypt, Client, Doctor, Appointment
+from models import db, bcrypt, Client, Doctor, Appointment, DoctorAvailability
 
 doctors_data = [
     {'full_name': 'Dr. Maria Papadopoulou', 'username': 'mpapadopoulou', 'email': 'maria.papadopoulou@medbook.com', 'password': 'doctor123', 'specialization': 'Cardiologist'},
@@ -76,12 +76,25 @@ def seed():
             )
             db.session.add(appointment)
 
+        # Create doctor availability (Mon-Fri schedules)
+        availability_count = 0
+        for doctor in doctors:
+            for day in range(5):  # Monday(0) to Friday(4)
+                db.session.add(DoctorAvailability(
+                    doctor_id=doctor.id,
+                    day_of_week=day,
+                    start_time='09:00',
+                    end_time='14:00',
+                ))
+                availability_count += 1
+
         db.session.commit()
 
         print('Seeded successfully!')
         print(f'  {len(doctors)} doctors')
         print(f'  {len(clients)} clients')
         print(f'  {len(appointments_data)} appointments')
+        print(f'  {availability_count} availability slots')
         print()
         print('Sample logins:')
         print('  Client: kostas@example.com / client123')
