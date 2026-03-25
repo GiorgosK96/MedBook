@@ -93,6 +93,10 @@ const translations = {
     accountTitle: 'Account',
     back: 'Back',
     failedToLoad: 'Failed to load account details',
+
+    // Confirm / Toast
+    cancelBtn: 'Cancel',
+    confirmDeleteBtn: 'Delete',
   },
   el: {
     // App
@@ -184,6 +188,10 @@ const translations = {
     accountTitle: 'Λογαριασμός',
     back: 'Πίσω',
     failedToLoad: 'Αποτυχία φόρτωσης στοιχείων λογαριασμού',
+
+    // Confirm / Toast
+    cancelBtn: 'Ακύρωση',
+    confirmDeleteBtn: 'Διαγραφή',
   },
 };
 

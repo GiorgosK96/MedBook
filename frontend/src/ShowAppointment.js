@@ -1,26 +1,36 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
+import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import Spinner from './components/Spinner';
+import ConfirmModal from './components/ConfirmModal';
 
 function ShowAppointment() {
   const { t, lang } = useLanguage();
+  const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [confirmId, setConfirmId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/ShowAppointment', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
       .then(r => { if (r.ok) return r.json(); throw new Error(); })
       .then(data => setAppointments(data.appointments))
-      .catch(() => setMessage(t.errorOccurred));
-  }, [t.errorOccurred]);
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setLoading(false));
+  }, [t.errorOccurred, showToast]);
 
-  const handleDelete = (id) => {
-    if (!window.confirm(t.confirmDelete)) return;
+  const handleDelete = () => {
+    const id = confirmId;
+    setConfirmId(null);
     fetch(`/ShowAppointment/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => { if (r.ok) r.json().then(d => { setMessage(d.message); setAppointments(appointments.filter(a => a.id !== id)); }); else r.json().then(d => setMessage(d.message)); })
-      .catch(() => setMessage(t.errorOccurred));
+      .then(r => r.json().then(d => {
+        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
+        else showToast(d.message, 'error');
+      }))
+      .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -41,7 +51,7 @@ function ShowAppointment() {
       {!dimmed && (
         <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
           <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>
-          <button onClick={() => handleDelete(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>
+          <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>
         </div>
       )}
     </div>
@@ -52,7 +62,7 @@ function ShowAppointment() {
       <div className="max-w-lg mx-auto">
         <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.yourAppointments}</h2>
 
-        {appointments.length === 0 && !message ? (
+        {loading ? <Spinner /> : appointments.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
             <p className="text-3xl mb-3 opacity-40">📅</p>
             <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsYet}</p>
@@ -70,9 +80,9 @@ function ShowAppointment() {
             {past.map(a => <AppointmentCard key={a.id} a={a} dimmed={true} />)}
           </div>
         )}
-
-        {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>
+
+      {confirmId && <ConfirmModal message={t.confirmDelete} onConfirm={handleDelete} onCancel={() => setConfirmId(null)} />}
     </div>
   );
 }

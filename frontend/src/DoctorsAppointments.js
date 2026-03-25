@@ -1,24 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
+import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import Spinner from './components/Spinner';
+import ConfirmModal from './components/ConfirmModal';
 
 function DoctorsAppointments() {
   const { t, lang } = useLanguage();
+  const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [confirmId, setConfirmId] = useState(null);
 
   useEffect(() => {
     fetch('/doctorAppointments', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
       .then(r => { if (r.ok) return r.json(); throw new Error(); })
       .then(data => setAppointments(data.appointments))
-      .catch(() => setMessage(t.errorOccurred));
-  }, [t.errorOccurred]);
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setLoading(false));
+  }, [t.errorOccurred, showToast]);
 
-  const handleDelete = (id) => {
-    if (!window.confirm(t.confirmDelete)) return;
+  const handleDelete = () => {
+    const id = confirmId;
+    setConfirmId(null);
     fetch(`/doctorAppointments/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => { if (r.ok) r.json().then(d => { setMessage(d.message); setAppointments(appointments.filter(a => a.id !== id)); }); else r.json().then(d => setMessage(d.message)); })
-      .catch(() => setMessage(t.errorOccurred));
+      .then(r => r.json().then(d => {
+        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
+        else showToast(d.message, 'error');
+      }))
+      .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
   return (
@@ -26,7 +36,7 @@ function DoctorsAppointments() {
       <div className="max-w-xl mx-auto">
         <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.doctorAppointmentsTitle}</h2>
 
-        {appointments.length === 0 && !message ? (
+        {loading ? <Spinner /> : appointments.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
             <p className="text-3xl mb-3 opacity-40">🩺</p>
             <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsScheduled}</p>
@@ -48,15 +58,15 @@ function DoctorsAppointments() {
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100">
-                  <button onClick={() => handleDelete(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
+                  <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>
+
+      {confirmId && <ConfirmModal message={t.confirmDelete} onConfirm={handleDelete} onCancel={() => setConfirmId(null)} />}
     </div>
   );
 }

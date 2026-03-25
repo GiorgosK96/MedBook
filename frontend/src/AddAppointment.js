@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
+import { useToast } from './components/ToastContext';
+import Spinner from './components/Spinner';
 
 const TIME_SLOTS = [
   '08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
@@ -15,23 +17,24 @@ function formatSlot(t) {
 
 export const AddAppointment = () => {
   const { t } = useLanguage();
+  const showToast = useToast();
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
   const [doctorId, setDoctorId] = useState('');
   const [comment, setComment] = useState('');
-  const [message, setMessage] = useState('');
-  const [isAccepted, setIsAccepted] = useState(null);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/doctors', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
     .then(r => r.json()).then(data => setDoctors(data.doctors))
-    .catch(err => console.error('Error fetching doctors:', err));
-  }, []);
+    .catch(() => showToast(t.errorOccurred, 'error'))
+    .finally(() => setLoading(false));
+  }, [t.errorOccurred, showToast]);
 
   const handleSubmit = () => {
-    if (!date || !timeFrom || !timeTo || !doctorId) { setMessage(t.allFieldsRequired); setIsAccepted(false); return; }
+    if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
     fetch('/AddAppointment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -39,15 +42,14 @@ export const AddAppointment = () => {
     })
     .then(r => r.json())
     .then(data => {
-      if (data.error) { setMessage(`Error: ${data.error}`); setIsAccepted(false); }
-      else { setMessage(data.message); setIsAccepted(true); setDate(''); setTimeFrom(''); setTimeTo(''); setDoctorId(''); setComment(''); }
+      if (data.error) { showToast(`Error: ${data.error}`, 'error'); }
+      else { showToast(data.message, 'success'); setDate(''); setTimeFrom(''); setTimeTo(''); setDoctorId(''); setComment(''); }
     })
-    .catch(() => { setMessage(t.errorOccurred); setIsAccepted(false); });
+    .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
 
-  // Group doctors by specialization
   const grouped = doctors.reduce((acc, d) => {
     (acc[d.specialization] = acc[d.specialization] || []).push(d);
     return acc;
@@ -55,6 +57,14 @@ export const AddAppointment = () => {
   const specializations = Object.keys(grouped).sort();
 
   const toSlots = timeFrom ? TIME_SLOTS.filter(s => s > timeFrom) : TIME_SLOTS;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center px-6 py-10 font-sans">
@@ -100,9 +110,6 @@ export const AddAppointment = () => {
             {t.bookAppointment}
           </button>
         </div>
-        {message && (
-          <p className={`mt-4 text-sm px-3 py-2.5 rounded-lg border ${isAccepted ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-600 bg-red-50 border-red-200'}`}>{message}</p>
-        )}
       </div>
     </div>
   );
