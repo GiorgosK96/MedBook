@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './LanguageContext';
+import Navbar from './components/Navbar';
 import LangToggle from './components/LangToggle';
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute';
 import LandingPage from './LandingPage';
@@ -16,7 +17,7 @@ function App() {
   return (
     <LanguageProvider>
       <Router>
-        <div className="h-1 bg-blue-600 w-full fixed top-0 left-0 z-50" />
+        <Navbar />
         <LangToggle />
         <Routes>
           <Route path="/" element={<Navigate replace to="/LandingPage" />} />

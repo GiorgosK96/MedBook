@@ -23,10 +23,8 @@ function ShowAppointment() {
       .catch(() => setMessage(t.errorOccurred));
   };
 
-  const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role'); navigate('/login'); };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 py-10 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 pb-10 pt-16 font-sans">
       <div className="max-w-xl mx-auto">
         <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.yourAppointments}</h2>
 
@@ -58,8 +56,6 @@ function ShowAppointment() {
           </div>
         )}
 
-        <button onClick={() => navigate('/ManageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
-        <button onClick={handleLogout} className="w-full mt-2 py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
         {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>
     </div>

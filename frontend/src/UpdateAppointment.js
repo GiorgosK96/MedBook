@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 
 export const UpdateAppointment = () => {
@@ -13,7 +13,6 @@ export const UpdateAppointment = () => {
   const [isAccepted, setIsAccepted] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const { appointmentId } = useParams();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/doctors', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
@@ -40,11 +39,10 @@ export const UpdateAppointment = () => {
       .catch(() => { setMessage(t.errorOccurred); setIsAccepted(false); });
   };
 
-  const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role'); navigate('/login'); };
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 py-10 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 pb-10 pt-16 font-sans">
       <div className="max-w-md mx-auto">
         <h2 className="text-lg font-semibold text-slate-800 mb-6 text-center">{t.editAppointmentTitle}</h2>
         <div className="bg-white border border-slate-200 rounded-xl p-7 shadow-sm space-y-4">
@@ -76,10 +74,6 @@ export const UpdateAppointment = () => {
           <button type="button" onClick={handleSubmit} className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
             {t.saveChanges}
           </button>
-        </div>
-        <div className="mt-4 space-y-2">
-          <button onClick={() => navigate('/ManageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
-          <button onClick={handleLogout} className="w-full py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
         </div>
         {message && (
           <p className={`mt-4 text-sm px-3 py-2.5 rounded-lg border ${isAccepted ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-600 bg-red-50 border-red-200'}`}>{message}</p>
