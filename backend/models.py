@@ -43,6 +43,7 @@ class Appointment(db.Model):
     time_from = db.Column(db.String(10), nullable=False)
     time_to = db.Column(db.String(10), nullable=False)
     comments = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='pending')
 
     doctor = db.relationship('Doctor', backref='appointments')
     client = db.relationship('Client', backref='appointments')

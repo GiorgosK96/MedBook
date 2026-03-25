@@ -27,12 +27,12 @@ clients_data = [
 ]
 
 appointments_data = [
-    {'client_idx': 0, 'doctor_idx': 0, 'date': '2026-03-27', 'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup'},
-    {'client_idx': 0, 'doctor_idx': 2, 'date': '2026-03-28', 'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches'},
-    {'client_idx': 1, 'doctor_idx': 1, 'date': '2026-03-27', 'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm'},
-    {'client_idx': 1, 'doctor_idx': 4, 'date': '2026-03-30', 'time_from': '14:00', 'time_to': '14:30', 'comments': ''},
-    {'client_idx': 2, 'doctor_idx': 3, 'date': '2026-03-29', 'time_from': '16:00', 'time_to': '16:45', 'comments': 'Knee pain after running'},
-    {'client_idx': 2, 'doctor_idx': 6, 'date': '2026-04-01', 'time_from': '12:00', 'time_to': '12:50', 'comments': 'Follow-up session'},
+    {'client_idx': 0, 'doctor_idx': 0, 'date': '2026-03-27', 'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup', 'status': 'confirmed'},
+    {'client_idx': 0, 'doctor_idx': 2, 'date': '2026-03-28', 'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches', 'status': 'pending'},
+    {'client_idx': 1, 'doctor_idx': 1, 'date': '2026-03-27', 'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm', 'status': 'confirmed'},
+    {'client_idx': 1, 'doctor_idx': 4, 'date': '2026-03-30', 'time_from': '14:00', 'time_to': '14:30', 'comments': '', 'status': 'pending'},
+    {'client_idx': 2, 'doctor_idx': 3, 'date': '2026-03-29', 'time_from': '16:00', 'time_to': '16:45', 'comments': 'Knee pain after running', 'status': 'declined'},
+    {'client_idx': 2, 'doctor_idx': 6, 'date': '2026-04-01', 'time_from': '12:00', 'time_to': '12:50', 'comments': 'Follow-up session', 'status': 'pending'},
 ]
 
 
@@ -72,6 +72,7 @@ def seed():
                 time_from=a['time_from'],
                 time_to=a['time_to'],
                 comments=a['comments'],
+                status=a.get('status', 'pending'),
             )
             db.session.add(appointment)
 

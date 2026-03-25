@@ -81,6 +81,8 @@ const translations = {
     edit: 'Edit',
     delete: 'Delete',
     confirmDelete: 'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.',
+    confirmAccept: 'Accept this appointment?',
+    confirmDecline: 'Are you sure you want to decline this appointment?\n\nThe client will be notified.',
 
     // Doctor view
     doctorAppointmentsTitle: "Your Clients' Appointments",
@@ -88,6 +90,14 @@ const translations = {
     noAppointmentsScheduledDesc: 'Clients will book appointments with you as they become available.',
     clientName: 'Client',
     cancelAppointment: 'Cancel Appointment',
+    acceptAppointment: 'Accept',
+    declineAppointment: 'Decline',
+
+    // Status
+    status: 'Status',
+    statusPending: 'Pending',
+    statusConfirmed: 'Confirmed',
+    statusDeclined: 'Declined',
 
     // Account
     accountTitle: 'Account',
@@ -180,6 +190,8 @@ const translations = {
     edit: 'Επεξεργασία',
     delete: 'Διαγραφή',
     confirmDelete: 'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το ραντεβού;\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
+    confirmAccept: 'Αποδοχή αυτού του ραντεβού;',
+    confirmDecline: 'Είστε σίγουροι ότι θέλετε να απορρίψετε αυτό το ραντεβού;\n\nΟ πελάτης θα ειδοποιηθεί.',
 
     // Doctor view
     doctorAppointmentsTitle: 'Ραντεβού Πελατών',
@@ -187,6 +199,14 @@ const translations = {
     noAppointmentsScheduledDesc: 'Οι πελάτες θα κλείσουν ραντεβού μαζί σας σύντομα.',
     clientName: 'Πελάτης',
     cancelAppointment: 'Ακύρωση Ραντεβού',
+    acceptAppointment: 'Αποδοχή',
+    declineAppointment: 'Απόρριψη',
+
+    // Status
+    status: 'Κατάσταση',
+    statusPending: 'Σε αναμονή',
+    statusConfirmed: 'Επιβεβαιωμένο',
+    statusDeclined: 'Απορρίφθηκε',
 
     // Account
     accountTitle: 'Λογαριασμός',

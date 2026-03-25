@@ -46,6 +46,12 @@ function ShowAppointment() {
         <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
         <span className="font-medium text-slate-500">{t.doctor}</span>
         <span className="text-slate-800">{a.doctor.full_name} ({a.doctor.specialization})</span>
+        <span className="font-medium text-slate-500">{t.status}</span>
+        <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+          a.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+          a.status === 'declined' ? 'bg-red-100 text-red-700' :
+          'bg-amber-100 text-amber-700'
+        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : t.statusPending}</span></span>
         {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
       </div>
       {!dimmed && (

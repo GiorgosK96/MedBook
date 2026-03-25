@@ -127,7 +127,8 @@ def get_appointment(appointment_id):
             'full_name': doctor.full_name,
             'specialization': doctor.specialization
         },
-        'comments': appointment.comments
+        'comments': appointment.comments,
+        'status': appointment.status
     }), 200
 
 
@@ -148,7 +149,8 @@ def show_appointment():
             'full_name': appointment.doctor.full_name,
             'specialization': appointment.doctor.specialization
         },
-        'comments': appointment.comments
+        'comments': appointment.comments,
+        'status': appointment.status
     } for appointment in appointments]
 
     return jsonify({'appointments': appointments_list}), 200
@@ -184,7 +186,8 @@ def add_appointment():
         Appointment.doctor_id == doctor_id,
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
-        Appointment.time_to > time_from_str
+        Appointment.time_to > time_from_str,
+        Appointment.status != 'declined'
     ).first()
 
     if overlapping_doctor_appointment:
@@ -195,7 +198,8 @@ def add_appointment():
         Appointment.client_id == client_id,
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
-        Appointment.time_to > time_from_str
+        Appointment.time_to > time_from_str,
+        Appointment.status != 'declined'
     ).first()
 
     if overlapping_client_appointment:
@@ -257,7 +261,8 @@ def update_appointment(appointment_id):
         Appointment.date == new_date,
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
-        Appointment.id != appointment.id
+        Appointment.id != appointment.id,
+        Appointment.status != 'declined'
     ).first()
 
     if overlapping_doctor_appointment:
@@ -269,7 +274,8 @@ def update_appointment(appointment_id):
         Appointment.date == new_date,
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
-        Appointment.id != appointment.id
+        Appointment.id != appointment.id,
+        Appointment.status != 'declined'
     ).first()
 
     if overlapping_client_appointment:
@@ -281,6 +287,7 @@ def update_appointment(appointment_id):
     appointment.time_to = new_time_to
     appointment.doctor_id = doctor_id
     appointment.comments = comments
+    appointment.status = 'pending'
 
     try:
         db.session.commit()
@@ -347,10 +354,31 @@ def get_doctor_appointments():
         'date': appointment.date,
         'time_from': appointment.time_from,
         'time_to': appointment.time_to,
-        'comments': appointment.comments
+        'comments': appointment.comments,
+        'status': appointment.status
     } for appointment in appointments]
 
     return jsonify({'appointments': appointments_list}), 200
+
+
+@app.route("/doctorAppointments/<int:appointment_id>/status", methods=['PATCH'])
+@jwt_required()
+def update_appointment_status(appointment_id):
+    doctor_id = get_jwt_identity()
+    data = request.get_json()
+    new_status = data.get('status')
+
+    if new_status not in ('confirmed', 'declined'):
+        return jsonify({'error': 'Invalid status'}), 400
+
+    appointment = Appointment.query.filter_by(id=appointment_id, doctor_id=doctor_id).first()
+    if not appointment:
+        return jsonify({'error': 'Appointment not found'}), 404
+
+    appointment.status = new_status
+    db.session.commit()
+
+    return jsonify({'message': f'Appointment {new_status} successfully'}), 200
 
 
 @app.route('/account', methods=['GET'])
