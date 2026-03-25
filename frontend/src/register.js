@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from './LanguageContext';
+import { useToast } from './components/ToastContext';
 
 function Register() {
   const { t } = useLanguage();
+  const showToast = useToast();
   const [formData, setFormData] = useState({
     full_name: '', username: '', email: '', password: '', role: 'patient', specialization: ''
   });
-  const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
@@ -47,10 +48,10 @@ function Register() {
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) setMessage(data.error);
-        else { setMessage(data.message); navigate("/login"); }
+        if (data.error) showToast(data.error, 'error');
+        else { showToast(data.message, 'success'); navigate("/login"); }
       })
-      .catch(() => setMessage(t.errorOccurred));
+      .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
@@ -113,9 +114,6 @@ function Register() {
           {t.backToHome}
         </button>
 
-        {message && (
-          <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">{message}</p>
-        )}
       </div>
     </div>
   );

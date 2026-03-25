@@ -75,6 +75,7 @@ const translations = {
     yourAppointments: 'Your Appointments',
     noAppointmentsYet: 'No appointments yet',
     noAppointmentsDesc: 'Head to the dashboard to book your first one.',
+    past: 'Past',
     time: 'Time',
     notes: 'Notes',
     edit: 'Edit',
@@ -92,6 +93,10 @@ const translations = {
     accountTitle: 'Account',
     back: 'Back',
     failedToLoad: 'Failed to load account details',
+
+    // Confirm / Toast
+    cancelBtn: 'Cancel',
+    confirmDeleteBtn: 'Delete',
   },
   el: {
     // App
@@ -165,6 +170,7 @@ const translations = {
     yourAppointments: 'Τα Ραντεβού σας',
     noAppointmentsYet: 'Δεν υπάρχουν ραντεβού',
     noAppointmentsDesc: 'Μεταβείτε στον πίνακα ελέγχου για να κλείσετε το πρώτο σας.',
+    past: 'Παλαιότερα',
     time: 'Ώρα',
     notes: 'Σημειώσεις',
     edit: 'Επεξεργασία',
@@ -182,6 +188,10 @@ const translations = {
     accountTitle: 'Λογαριασμός',
     back: 'Πίσω',
     failedToLoad: 'Αποτυχία φόρτωσης στοιχείων λογαριασμού',
+
+    // Confirm / Toast
+    cancelBtn: 'Ακύρωση',
+    confirmDeleteBtn: 'Διαγραφή',
   },
 };
 

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './LanguageContext';
+import { ToastProvider } from './components/ToastContext';
 import Navbar from './components/Navbar';
 import LangToggle from './components/LangToggle';
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute';
@@ -16,6 +17,7 @@ import Account from './Account';
 function App() {
   return (
     <LanguageProvider>
+      <ToastProvider>
       <Router>
         <Navbar />
         <LangToggle />
@@ -32,6 +34,7 @@ function App() {
           <Route path="/Account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         </Routes>
       </Router>
+      </ToastProvider>
     </LanguageProvider>
   );
 }
