@@ -5,12 +5,18 @@ import { formatDate, formatTime } from './utils/formatDate';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
 
+const STATUS_STYLES = {
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-green-100 text-green-700',
+  declined: 'bg-red-100 text-red-700',
+};
+
 function DoctorsAppointments() {
   const { t, lang } = useLanguage();
   const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirmId, setConfirmId] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // { id, type: 'cancel'|'accept'|'decline' }
 
   useEffect(() => {
     fetch('/doctorAppointments', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
@@ -21,8 +27,8 @@ function DoctorsAppointments() {
   }, [t.errorOccurred, showToast]);
 
   const handleDelete = () => {
-    const id = confirmId;
-    setConfirmId(null);
+    const id = confirmAction.id;
+    setConfirmAction(null);
     fetch(`/doctorAppointments/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
       .then(r => r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
@@ -30,6 +36,22 @@ function DoctorsAppointments() {
       }))
       .catch(() => showToast(t.errorOccurred, 'error'));
   };
+
+  const handleStatusUpdate = (id, status) => {
+    setConfirmAction(null);
+    fetch(`/doctorAppointments/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+      .then(r => r.json().then(d => {
+        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.map(a => a.id === id ? { ...a, status } : a)); }
+        else showToast(d.error, 'error');
+      }))
+      .catch(() => showToast(t.errorOccurred, 'error'));
+  };
+
+  const statusLabel = (s) => s === 'confirmed' ? t.statusConfirmed : s === 'declined' ? t.statusDeclined : t.statusPending;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 pb-10 pt-16 font-sans">
@@ -45,7 +67,7 @@ function DoctorsAppointments() {
         ) : (
           <div className="space-y-3 mb-6">
             {appointments.map(a => (
-              <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+              <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${a.status === 'declined' ? 'opacity-50' : ''}`}>
                 <div className="grid grid-cols-[100px_1fr] gap-y-1.5 text-sm">
                   <span className="font-medium text-slate-500">{t.clientName}</span>
                   <span className="text-slate-800">{a.client.full_name}</span>
@@ -55,18 +77,50 @@ function DoctorsAppointments() {
                   <span className="text-slate-800">{formatDate(a.date, lang)}</span>
                   <span className="font-medium text-slate-500">{t.time}</span>
                   <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
+                  <span className="font-medium text-slate-500">{t.status}</span>
+                  <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_STYLES[a.status] || STATUS_STYLES.pending}`}>{statusLabel(a.status)}</span></span>
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-100">
-                  <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
-                </div>
+                {a.status !== 'declined' && (
+                  <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+                    {a.status === 'pending' && (
+                      <>
+                        <button onClick={() => setConfirmAction({ id: a.id, type: 'accept' })} className="px-3 py-1.5 text-xs font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors">{t.acceptAppointment}</button>
+                        <button onClick={() => setConfirmAction({ id: a.id, type: 'decline' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.declineAppointment}</button>
+                      </>
+                    )}
+                    {a.status === 'confirmed' && (
+                      <button onClick={() => setConfirmAction({ id: a.id, type: 'cancel' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {confirmId && <ConfirmModal message={t.confirmDelete} onConfirm={handleDelete} onCancel={() => setConfirmId(null)} />}
+      {confirmAction && (
+        <ConfirmModal
+          message={
+            confirmAction.type === 'accept' ? t.confirmAccept :
+            confirmAction.type === 'decline' ? t.confirmDecline :
+            t.confirmDelete
+          }
+          confirmLabel={
+            confirmAction.type === 'accept' ? t.acceptAppointment :
+            confirmAction.type === 'decline' ? t.declineAppointment :
+            undefined
+          }
+          variant={confirmAction.type === 'accept' ? 'success' : 'danger'}
+          onConfirm={() => {
+            if (confirmAction.type === 'accept') handleStatusUpdate(confirmAction.id, 'confirmed');
+            else if (confirmAction.type === 'decline') handleStatusUpdate(confirmAction.id, 'declined');
+            else handleDelete();
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 }
