@@ -26,10 +26,10 @@ function App() {
           <Route path="/LandingPage" element={<PublicRoute><LandingPage /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/ManageAppointment" element={<ProtectedRoute allowedRole="patient"><ManageAppointment /></ProtectedRoute>} />
-          <Route path="/AddAppointment" element={<ProtectedRoute allowedRole="patient"><AddAppointment /></ProtectedRoute>} />
-          <Route path="/ShowAppointment" element={<ProtectedRoute allowedRole="patient"><ShowAppointment /></ProtectedRoute>} />
-          <Route path="/UpdateAppointment/:appointmentId" element={<ProtectedRoute allowedRole="patient"><UpdateAppointment /></ProtectedRoute>} />
+          <Route path="/ManageAppointment" element={<ProtectedRoute allowedRole="client"><ManageAppointment /></ProtectedRoute>} />
+          <Route path="/AddAppointment" element={<ProtectedRoute allowedRole="client"><AddAppointment /></ProtectedRoute>} />
+          <Route path="/ShowAppointment" element={<ProtectedRoute allowedRole="client"><ShowAppointment /></ProtectedRoute>} />
+          <Route path="/UpdateAppointment/:appointmentId" element={<ProtectedRoute allowedRole="client"><UpdateAppointment /></ProtectedRoute>} />
           <Route path="/DoctorsAppointments" element={<ProtectedRoute allowedRole="doctor"><DoctorsAppointments /></ProtectedRoute>} />
           <Route path="/Account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         </Routes>

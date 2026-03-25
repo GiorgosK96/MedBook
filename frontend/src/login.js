@@ -6,7 +6,7 @@ import { useToast } from './components/ToastContext';
 function Login() {
   const { t } = useLanguage();
   const showToast = useToast();
-  const [formData, setFormData] = useState({ email: '', password: '', role: 'patient' });
+  const [formData, setFormData] = useState({ email: '', password: '', role: 'client' });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ function Login() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('username', data.username);
             localStorage.setItem('role', data.role);
-            navigate(data.role === 'patient' ? "/ManageAppointment" : "/DoctorsAppointments");
+            navigate(data.role === 'client' ? "/ManageAppointment" : "/DoctorsAppointments");
           }
         }
       })
@@ -70,7 +70,7 @@ function Login() {
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.role}</label>
             <select name="role" value={formData.role} onChange={handleChange} className={inputClass}>
-              <option value="patient">{t.patient}</option>
+              <option value="client">{t.client}</option>
               <option value="doctor">{t.doctor}</option>
             </select>
           </div>

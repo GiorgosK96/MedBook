@@ -47,10 +47,10 @@ function DoctorsAppointments() {
             {appointments.map(a => (
               <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
                 <div className="grid grid-cols-[100px_1fr] gap-y-1.5 text-sm">
-                  <span className="font-medium text-slate-500">{t.patientName}</span>
-                  <span className="text-slate-800">{a.patient.full_name}</span>
+                  <span className="font-medium text-slate-500">{t.clientName}</span>
+                  <span className="text-slate-800">{a.client.full_name}</span>
                   <span className="font-medium text-slate-500">{t.email}</span>
-                  <span className="text-slate-800">{a.patient.email}</span>
+                  <span className="text-slate-800">{a.client.email}</span>
                   <span className="font-medium text-slate-500">{t.date}</span>
                   <span className="text-slate-800">{formatDate(a.date, lang)}</span>
                   <span className="font-medium text-slate-500">{t.time}</span>

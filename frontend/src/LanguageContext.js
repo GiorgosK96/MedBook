@@ -25,7 +25,7 @@ const translations = {
     email: 'Email',
     password: 'Password',
     role: 'Role',
-    patient: 'Patient',
+    client: 'Client',
     doctor: 'Doctor',
     signInTitle: 'Sign in to MedBook',
     backToHome: 'Back to Home',
@@ -83,10 +83,10 @@ const translations = {
     confirmDelete: 'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.',
 
     // Doctor view
-    doctorAppointmentsTitle: "Your Patients' Appointments",
+    doctorAppointmentsTitle: "Your Clients' Appointments",
     noAppointmentsScheduled: 'No appointments scheduled',
-    noAppointmentsScheduledDesc: 'Patients will book appointments with you as they become available.',
-    patientName: 'Patient',
+    noAppointmentsScheduledDesc: 'Clients will book appointments with you as they become available.',
+    clientName: 'Client',
     cancelAppointment: 'Cancel Appointment',
 
     // Account
@@ -124,7 +124,7 @@ const translations = {
     email: 'Email',
     password: 'Κωδικός',
     role: 'Ρόλος',
-    patient: 'Ασθενής',
+    client: 'Πελάτης',
     doctor: 'Γιατρός',
     signInTitle: 'Σύνδεση στο MedBook',
     backToHome: 'Πίσω στην αρχική',
@@ -182,10 +182,10 @@ const translations = {
     confirmDelete: 'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το ραντεβού;\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
 
     // Doctor view
-    doctorAppointmentsTitle: 'Ραντεβού Ασθενών',
+    doctorAppointmentsTitle: 'Ραντεβού Πελατών',
     noAppointmentsScheduled: 'Δεν υπάρχουν ραντεβού',
-    noAppointmentsScheduledDesc: 'Οι ασθενείς θα κλείσουν ραντεβού μαζί σας σύντομα.',
-    patientName: 'Ασθενής',
+    noAppointmentsScheduledDesc: 'Οι πελάτες θα κλείσουν ραντεβού μαζί σας σύντομα.',
+    clientName: 'Πελάτης',
     cancelAppointment: 'Ακύρωση Ραντεβού',
 
     // Account

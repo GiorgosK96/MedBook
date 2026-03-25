@@ -36,7 +36,7 @@ export default function Navbar() {
       </Link>
 
       <nav className="flex items-center gap-6 flex-1">
-        {role === 'patient' && (
+        {role === 'client' && (
           <>
             <NavLink to="/ShowAppointment" className={navLinkClass}>
               {t.myAppointments}

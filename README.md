@@ -1,10 +1,10 @@
 # Medical Appointment Management System
 
-A web-based system for patients to book and manage their medical appointments with doctors using Flask for the backend and React for the frontend.
+A web-based system for clients to book and manage their medical appointments with doctors using Flask for the backend and React for the frontend.
 
 ## Features
-- Secure user authentication (patients & doctors)
-- Patients can book, update, and cancel appointments
+- Secure user authentication (clients & doctors)
+- Clients can book, update, and cancel appointments
 - Doctors can manage their schedules and appointments
 - Real-time appointment validation (no duplicate bookings)
 

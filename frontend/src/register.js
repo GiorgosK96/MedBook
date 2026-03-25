@@ -7,7 +7,7 @@ function Register() {
   const { t } = useLanguage();
   const showToast = useToast();
   const [formData, setFormData] = useState({
-    full_name: '', username: '', email: '', password: '', role: 'patient', specialization: ''
+    full_name: '', username: '', email: '', password: '', role: 'client', specialization: ''
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -88,7 +88,7 @@ function Register() {
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.role}</label>
             <select name="role" value={formData.role} onChange={handleChange} className={inputClass}>
-              <option value="patient">{t.patient}</option>
+              <option value="client">{t.client}</option>
               <option value="doctor">{t.doctor}</option>
             </select>
           </div>
