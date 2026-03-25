@@ -73,7 +73,7 @@ export const AddAppointment = () => {
           </button>
         </div>
         <div className="mt-4 space-y-2">
-          <button onClick={() => navigate('/manageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
+          <button onClick={() => navigate('/ManageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
           <button onClick={handleLogout} className="w-full py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
         </div>
         {message && (

@@ -58,7 +58,7 @@ function ShowAppointment() {
           </div>
         )}
 
-        <button onClick={() => navigate('/manageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
+        <button onClick={() => navigate('/ManageAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">{t.backToDashboard}</button>
         <button onClick={handleLogout} className="w-full mt-2 py-2 text-sm text-slate-500 hover:text-red-600 transition-colors">{t.signOut}</button>
         {message && <p className="mt-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">{message}</p>}
       </div>

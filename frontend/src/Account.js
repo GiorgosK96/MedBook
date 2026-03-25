@@ -19,7 +19,7 @@ function Account() {
   const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role'); navigate('/login'); };
   const handleBack = () => {
     const role = localStorage.getItem('role');
-    navigate(role === 'patient' ? '/manageAppointment' : '/DoctorsAppointments');
+    navigate(role === 'patient' ? '/ManageAppointment' : '/DoctorsAppointments');
   };
 
   return (

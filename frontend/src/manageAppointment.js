@@ -29,7 +29,7 @@ function ManageAppointment() {
           <button onClick={() => navigate('/ShowAppointment')} className="w-full py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 rounded-lg transition-colors">
             {t.myAppointments}
           </button>
-          <button onClick={() => navigate('/account')} className="w-full py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 rounded-lg transition-colors">
+          <button onClick={() => navigate('/Account')} className="w-full py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 rounded-lg transition-colors">
             {t.account}
           </button>
           <button onClick={handleLogout} className="w-full mt-2 py-2.5 text-sm font-medium text-slate-500 hover:text-red-600 transition-colors">

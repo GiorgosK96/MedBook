@@ -39,7 +39,7 @@ function Login() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('username', data.username);
             localStorage.setItem('role', data.role);
-            navigate(data.role === 'patient' ? "/manageAppointment" : "/DoctorsAppointments");
+            navigate(data.role === 'patient' ? "/ManageAppointment" : "/DoctorsAppointments");
           }
         }
       })
