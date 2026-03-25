@@ -357,11 +357,11 @@ def get_doctor_appointments():
 @app.route('/account', methods=['GET'])
 @jwt_required()
 def account():
-    user_id = get_jwt_identity()  
-    role = request.args.get('role') 
-    
+    user_id = get_jwt_identity()
+    role = request.args.get('role')
+
     if role == 'patient':
-        
+
         patient = Patient.query.get(user_id)
         if patient:
             return jsonify({
@@ -374,7 +374,7 @@ def account():
             return jsonify({'error': 'Patient not found'}), 404
 
     elif role == 'doctor':
-        
+
         doctor = Doctor.query.get(user_id)
         if doctor:
             return jsonify({
@@ -389,6 +389,65 @@ def account():
 
     else:
         return jsonify({'error': 'Invalid role'}), 400
+
+
+@app.route('/account', methods=['PUT'])
+@jwt_required()
+def update_account():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    role = data.get('role')
+
+    if role == 'patient':
+        user = Patient.query.get(user_id)
+    elif role == 'doctor':
+        user = Doctor.query.get(user_id)
+    else:
+        return jsonify({'error': 'Invalid role'}), 400
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    new_full_name = data.get('full_name', '').strip()
+    new_email = data.get('email', '').strip()
+    current_password = data.get('current_password', '')
+    new_password = data.get('new_password', '')
+
+    if new_full_name and len(new_full_name) < 2:
+        return jsonify({'error': 'Full name must be at least 2 characters'}), 400
+
+    if new_email and new_email != user.email:
+        Model = Patient if role == 'patient' else Doctor
+        if Model.query.filter(Model.email == new_email, Model.id != user_id).first():
+            return jsonify({'error': 'Email already in use'}), 400
+
+    if new_password:
+        if not current_password:
+            return jsonify({'error': 'Current password is required to set a new password'}), 400
+        if not user.check_password(current_password):
+            return jsonify({'error': 'Current password is incorrect'}), 400
+        if len(new_password) < 6:
+            return jsonify({'error': 'New password must be at least 6 characters'}), 400
+        user.set_password(new_password)
+
+    if new_full_name:
+        user.full_name = new_full_name
+    if new_email:
+        user.email = new_email
+
+    try:
+        db.session.commit()
+        return jsonify({
+            'message': 'Account updated successfully',
+            'full_name': user.full_name,
+            'username': user.username,
+            'email': user.email,
+            'role': role,
+            **(({'specialization': user.specialization}) if role == 'doctor' else {}),
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Failed to update account: {str(e)}'}), 500
 
 
 if __name__ == '__main__':

@@ -93,6 +93,10 @@ const translations = {
     accountTitle: 'Account',
     back: 'Back',
     failedToLoad: 'Failed to load account details',
+    editProfile: 'Edit Profile',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
+    profileUpdated: 'Profile updated successfully',
 
     // Confirm / Toast
     cancelBtn: 'Cancel',
@@ -188,6 +192,10 @@ const translations = {
     accountTitle: 'Λογαριασμός',
     back: 'Πίσω',
     failedToLoad: 'Αποτυχία φόρτωσης στοιχείων λογαριασμού',
+    editProfile: 'Επεξεργασία Προφίλ',
+    currentPassword: 'Τρέχων Κωδικός',
+    newPassword: 'Νέος Κωδικός',
+    profileUpdated: 'Το προφίλ ενημερώθηκε επιτυχώς',
 
     // Confirm / Toast
     cancelBtn: 'Ακύρωση',
