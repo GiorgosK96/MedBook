@@ -7,7 +7,7 @@ function ManageAppointment() {
   const username = localStorage.getItem('username');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center px-6 pt-16 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center px-6 font-sans">
       <div className="w-full max-w-sm text-center">
         <h2 className="text-lg font-semibold text-slate-800 mb-1">{t.dashboard}</h2>
         <p className="text-sm text-slate-500 mb-8">

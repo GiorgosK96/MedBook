@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { formatDate, formatTime } from './utils/formatDate';
 
@@ -7,7 +6,6 @@ function DoctorsAppointments() {
   const { t, lang } = useLanguage();
   const [appointments, setAppointments] = useState([]);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/doctorAppointments', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
