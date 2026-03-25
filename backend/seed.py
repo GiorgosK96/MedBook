@@ -1,5 +1,5 @@
 """
-Seed script — populates the database with sample doctors, patients, and appointments.
+Seed script — populates the database with sample doctors, clients, and appointments.
 
 Usage:
     cd backend
@@ -7,7 +7,7 @@ Usage:
 """
 
 from api import app
-from models import db, bcrypt, Patient, Doctor, Appointment
+from models import db, bcrypt, Client, Doctor, Appointment
 
 doctors_data = [
     {'full_name': 'Dr. Maria Papadopoulou', 'username': 'mpapadopoulou', 'email': 'maria.papadopoulou@medbook.com', 'password': 'doctor123', 'specialization': 'Cardiologist'},
@@ -20,19 +20,19 @@ doctors_data = [
     {'full_name': 'Dr. Giorgos Makris', 'username': 'gmakris', 'email': 'giorgos.makris@medbook.com', 'password': 'doctor123', 'specialization': 'Gastroenterologist'},
 ]
 
-patients_data = [
-    {'full_name': 'Kostas Papadakis', 'username': 'kpapadakis', 'email': 'kostas@example.com', 'password': 'patient123'},
-    {'full_name': 'Eleni Karagianni', 'username': 'ekaragianni', 'email': 'eleni@example.com', 'password': 'patient123'},
-    {'full_name': 'Thanasis Raptis', 'username': 'traptis', 'email': 'thanasis@example.com', 'password': 'patient123'},
+clients_data = [
+    {'full_name': 'Kostas Papadakis', 'username': 'kpapadakis', 'email': 'kostas@example.com', 'password': 'client123'},
+    {'full_name': 'Eleni Karagianni', 'username': 'ekaragianni', 'email': 'eleni@example.com', 'password': 'client123'},
+    {'full_name': 'Thanasis Raptis', 'username': 'traptis', 'email': 'thanasis@example.com', 'password': 'client123'},
 ]
 
 appointments_data = [
-    {'patient_idx': 0, 'doctor_idx': 0, 'date': '2026-03-27', 'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup'},
-    {'patient_idx': 0, 'doctor_idx': 2, 'date': '2026-03-28', 'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches'},
-    {'patient_idx': 1, 'doctor_idx': 1, 'date': '2026-03-27', 'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm'},
-    {'patient_idx': 1, 'doctor_idx': 4, 'date': '2026-03-30', 'time_from': '14:00', 'time_to': '14:30', 'comments': ''},
-    {'patient_idx': 2, 'doctor_idx': 3, 'date': '2026-03-29', 'time_from': '16:00', 'time_to': '16:45', 'comments': 'Knee pain after running'},
-    {'patient_idx': 2, 'doctor_idx': 6, 'date': '2026-04-01', 'time_from': '12:00', 'time_to': '12:50', 'comments': 'Follow-up session'},
+    {'client_idx': 0, 'doctor_idx': 0, 'date': '2026-03-27', 'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup'},
+    {'client_idx': 0, 'doctor_idx': 2, 'date': '2026-03-28', 'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches'},
+    {'client_idx': 1, 'doctor_idx': 1, 'date': '2026-03-27', 'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm'},
+    {'client_idx': 1, 'doctor_idx': 4, 'date': '2026-03-30', 'time_from': '14:00', 'time_to': '14:30', 'comments': ''},
+    {'client_idx': 2, 'doctor_idx': 3, 'date': '2026-03-29', 'time_from': '16:00', 'time_to': '16:45', 'comments': 'Knee pain after running'},
+    {'client_idx': 2, 'doctor_idx': 6, 'date': '2026-04-01', 'time_from': '12:00', 'time_to': '12:50', 'comments': 'Follow-up session'},
 ]
 
 
@@ -53,20 +53,20 @@ def seed():
             db.session.add(doctor)
             doctors.append(doctor)
 
-        # Create patients
-        patients = []
-        for p in patients_data:
-            patient = Patient(full_name=p['full_name'], username=p['username'], email=p['email'])
-            patient.set_password(p['password'])
-            db.session.add(patient)
-            patients.append(patient)
+        # Create clients
+        clients = []
+        for c in clients_data:
+            client = Client(full_name=c['full_name'], username=c['username'], email=c['email'])
+            client.set_password(c['password'])
+            db.session.add(client)
+            clients.append(client)
 
         db.session.flush()  # Get IDs assigned
 
         # Create appointments
         for a in appointments_data:
             appointment = Appointment(
-                patient_id=patients[a['patient_idx']].id,
+                client_id=clients[a['client_idx']].id,
                 doctor_id=doctors[a['doctor_idx']].id,
                 date=a['date'],
                 time_from=a['time_from'],
@@ -79,12 +79,12 @@ def seed():
 
         print('Seeded successfully!')
         print(f'  {len(doctors)} doctors')
-        print(f'  {len(patients)} patients')
+        print(f'  {len(clients)} clients')
         print(f'  {len(appointments_data)} appointments')
         print()
         print('Sample logins:')
-        print('  Patient: kostas@example.com / patient123')
-        print('  Doctor:  maria.papadopoulou@medbook.com / doctor123')
+        print('  Client: kostas@example.com / client123')
+        print('  Doctor: maria.papadopoulou@medbook.com / doctor123')
 
 
 if __name__ == '__main__':

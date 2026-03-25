@@ -5,7 +5,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 class Person(db.Model):
-    __abstract__ = True 
+    __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -21,23 +21,23 @@ class Person(db.Model):
     def __repr__(self):
         return f"<{self.__class__.__name__}('{self.full_name}', '{self.username}', '{self.email}')>"
 
-class Patient(Person):
-    __tablename__ = 'patient' 
+class Client(Person):
+    __tablename__ = 'client'
 
-    
+
     def __repr__(self):
-        return f"<Patient('{self.full_name}', '{self.username}', '{self.email}')>"
+        return f"<Client('{self.full_name}', '{self.username}', '{self.email}')>"
 
 class Doctor(Person):
-    __tablename__ = 'doctor'  
-    specialization = db.Column(db.String(80), nullable=False) 
+    __tablename__ = 'doctor'
+    specialization = db.Column(db.String(80), nullable=False)
 
     def __repr__(self):
         return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
     date = db.Column(db.String(50), nullable=False)
     time_from = db.Column(db.String(10), nullable=False)
@@ -45,7 +45,7 @@ class Appointment(db.Model):
     comments = db.Column(db.Text, nullable=True)
 
     doctor = db.relationship('Doctor', backref='appointments')
-    patient = db.relationship('Patient', backref='appointments')  
+    client = db.relationship('Client', backref='appointments')
 
 
     def __repr__(self):

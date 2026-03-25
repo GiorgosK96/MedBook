@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from datetime import datetime
 from dotenv import load_dotenv
 from config import Config
-from models import db, bcrypt, Patient, Doctor, Appointment
+from models import db, bcrypt, Client, Doctor, Appointment
 
 load_dotenv()
 
@@ -26,30 +26,30 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    role = data.get('role')  
+    role = data.get('role')
     specialization = data.get('specialization')
 
-    if role == 'patient':
-        
-        if Patient.query.filter_by(email=email).first() or Patient.query.filter_by(username=username).first():
-            return jsonify({'error': 'Email or Username already registered'}), 400
-        
-        new_patient = Patient(full_name=full_name, username=username, email=email)
-        new_patient.set_password(password)
+    if role == 'client':
 
-        db.session.add(new_patient)
+        if Client.query.filter_by(email=email).first() or Client.query.filter_by(username=username).first():
+            return jsonify({'error': 'Email or Username already registered'}), 400
+
+        new_client = Client(full_name=full_name, username=username, email=email)
+        new_client.set_password(password)
+
+        db.session.add(new_client)
         db.session.commit()
 
-        return jsonify({'message': 'Patient registered successfully'}), 201
+        return jsonify({'message': 'Account registered successfully'}), 201
 
     elif role == 'doctor':
-        
+
         if Doctor.query.filter_by(email=email).first() or Doctor.query.filter_by(username=username).first():
             return jsonify({'error': 'Email or Username already registered'}), 400
 
         if not specialization:
             return jsonify({'error': 'Specialization is required for doctors'}), 400
-        
+
         new_doctor = Doctor(full_name=full_name, username=username, email=email, specialization=specialization)
         new_doctor.set_password(password)
 
@@ -69,24 +69,24 @@ def login():
     password = data.get('password')
     role = data.get('role')
 
-    if role == 'patient':
-        
-        patient = Patient.query.filter_by(email=email).first()
+    if role == 'client':
 
-        if patient and patient.check_password(password):
-            token = create_access_token(identity=patient.id)
+        client = Client.query.filter_by(email=email).first()
+
+        if client and client.check_password(password):
+            token = create_access_token(identity=client.id)
             return jsonify({
                 'message': 'Login successful',
                 'token': token,
-                'username': patient.username,
-                'full_name': patient.full_name,
-                'role': 'patient'  
+                'username': client.username,
+                'full_name': client.full_name,
+                'role': 'client'
             }), 200
         else:
             return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
 
     elif role == 'doctor':
-        
+
         doctor = Doctor.query.filter_by(email=email).first()
 
         if doctor and doctor.check_password(password):
@@ -96,7 +96,7 @@ def login():
                 'token': token,
                 'username': doctor.username,
                 'specialization': doctor.specialization,
-                'role': 'doctor'  
+                'role': 'doctor'
             }), 200
         else:
             return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
@@ -109,8 +109,8 @@ def login():
 @jwt_required()
 def get_appointment(appointment_id):
     current_user_id = get_jwt_identity()
-    
-    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_user_id).first()
+
+    appointment = Appointment.query.filter_by(id=appointment_id, client_id=current_user_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
@@ -134,9 +134,9 @@ def get_appointment(appointment_id):
 @app.route("/ShowAppointment", methods=['GET'])
 @jwt_required()
 def show_appointment():
-    current_patient_id = get_jwt_identity()
+    current_client_id = get_jwt_identity()
 
-    appointments = Appointment.query.filter_by(patient_id=current_patient_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
+    appointments = Appointment.query.filter_by(client_id=current_client_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
 
     appointments_list = [{
         'id': appointment.id,
@@ -158,7 +158,7 @@ def show_appointment():
 @jwt_required()
 def add_appointment():
     data = request.get_json()
-    patient_id = get_jwt_identity()
+    client_id = get_jwt_identity()
     doctor_id = data.get('doctor_id')
     date_str = data.get('date')
     time_from_str = data.get('time_from')
@@ -191,19 +191,19 @@ def add_appointment():
         return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
 
 
-    overlapping_patient_appointment = Appointment.query.filter(
-        Appointment.patient_id == patient_id,
+    overlapping_client_appointment = Appointment.query.filter(
+        Appointment.client_id == client_id,
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
         Appointment.time_to > time_from_str
     ).first()
 
-    if overlapping_patient_appointment:
+    if overlapping_client_appointment:
         return jsonify({'error': 'You already have another appointment during this time'}), 400
 
 
     new_appointment = Appointment(
-        patient_id=patient_id,
+        client_id=client_id,
         doctor_id=doctor_id,
         date=date_str,
         time_from=time_from_str,
@@ -221,10 +221,10 @@ def add_appointment():
 @jwt_required()
 def update_appointment(appointment_id):
     data = request.get_json()
-    patient_id = get_jwt_identity()
+    client_id = get_jwt_identity()
 
 
-    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=patient_id).first()
+    appointment = Appointment.query.filter_by(id=appointment_id, client_id=client_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
@@ -257,22 +257,22 @@ def update_appointment(appointment_id):
         Appointment.date == new_date,
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
-        Appointment.id != appointment.id  
+        Appointment.id != appointment.id
     ).first()
 
     if overlapping_doctor_appointment:
         return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
 
 
-    overlapping_patient_appointment = Appointment.query.filter(
-        Appointment.patient_id == patient_id,
+    overlapping_client_appointment = Appointment.query.filter(
+        Appointment.client_id == client_id,
         Appointment.date == new_date,
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
-        Appointment.id != appointment.id  
+        Appointment.id != appointment.id
     ).first()
 
-    if overlapping_patient_appointment:
+    if overlapping_client_appointment:
         return jsonify({'error': 'You already have another appointment during this time'}), 400
 
 
@@ -293,10 +293,9 @@ def update_appointment(appointment_id):
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
 def delete_appointments(appointment_id):
-    current_patient_id = get_jwt_identity()  
+    current_client_id = get_jwt_identity()
 
-   
-    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_patient_id).first()
+    appointment = Appointment.query.filter_by(id=appointment_id, client_id=current_client_id).first()
 
     if appointment:
         db.session.delete(appointment)
@@ -304,7 +303,7 @@ def delete_appointments(appointment_id):
         return jsonify({'message': 'Appointment deleted successfully'}), 202
     else:
         return jsonify({'error': 'Appointment not found or not authorized to delete this appointment'}), 404
-    
+
 
 @app.route("/doctors", methods=['GET'])
 def get_doctors():
@@ -340,10 +339,10 @@ def get_doctor_appointments():
 
     appointments_list = [{
         'id': appointment.id,
-        'patient': {
-            'id': appointment.patient.id,
-            'full_name': appointment.patient.full_name,
-            'email': appointment.patient.email,
+        'client': {
+            'id': appointment.client.id,
+            'full_name': appointment.client.full_name,
+            'email': appointment.client.email,
         },
         'date': appointment.date,
         'time_from': appointment.time_from,
@@ -360,18 +359,18 @@ def account():
     user_id = get_jwt_identity()
     role = request.args.get('role')
 
-    if role == 'patient':
+    if role == 'client':
 
-        patient = Patient.query.get(user_id)
-        if patient:
+        client = Client.query.get(user_id)
+        if client:
             return jsonify({
-                'full_name': patient.full_name,
-                'username': patient.username,
-                'email': patient.email,
-                'role': 'patient'
+                'full_name': client.full_name,
+                'username': client.username,
+                'email': client.email,
+                'role': 'client'
             }), 200
         else:
-            return jsonify({'error': 'Patient not found'}), 404
+            return jsonify({'error': 'User not found'}), 404
 
     elif role == 'doctor':
 
@@ -398,8 +397,8 @@ def update_account():
     data = request.get_json()
     role = data.get('role')
 
-    if role == 'patient':
-        user = Patient.query.get(user_id)
+    if role == 'client':
+        user = Client.query.get(user_id)
     elif role == 'doctor':
         user = Doctor.query.get(user_id)
     else:
@@ -417,7 +416,7 @@ def update_account():
         return jsonify({'error': 'Full name must be at least 2 characters'}), 400
 
     if new_email and new_email != user.email:
-        Model = Patient if role == 'patient' else Doctor
+        Model = Client if role == 'client' else Doctor
         if Model.query.filter(Model.email == new_email, Model.id != user_id).first():
             return jsonify({'error': 'Email already in use'}), 400
 
