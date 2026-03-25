@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
+import { formatDate, formatTime } from './utils/formatDate';
 
 function DoctorsAppointments() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [appointments, setAppointments] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -45,9 +46,9 @@ function DoctorsAppointments() {
                   <span className="font-medium text-slate-500">{t.email}</span>
                   <span className="text-slate-800">{a.patient.email}</span>
                   <span className="font-medium text-slate-500">{t.date}</span>
-                  <span className="text-slate-800">{a.date}</span>
+                  <span className="text-slate-800">{formatDate(a.date, lang)}</span>
                   <span className="font-medium text-slate-500">{t.time}</span>
-                  <span className="text-slate-800">{a.time_from} – {a.time_to}</span>
+                  <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100">
