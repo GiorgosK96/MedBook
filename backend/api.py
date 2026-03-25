@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from datetime import datetime
 from dotenv import load_dotenv
 from config import Config
-from models import db, bcrypt, Client, Doctor, Appointment
+from models import db, bcrypt, Client, Doctor, Appointment, DoctorAvailability
 
 load_dotenv()
 
@@ -379,6 +379,101 @@ def update_appointment_status(appointment_id):
     db.session.commit()
 
     return jsonify({'message': f'Appointment {new_status} successfully'}), 200
+
+
+@app.route("/doctorAvailability", methods=['GET'])
+@jwt_required()
+def get_doctor_availability():
+    doctor_id = get_jwt_identity()
+    slots = DoctorAvailability.query.filter_by(doctor_id=doctor_id)\
+        .order_by(DoctorAvailability.day_of_week, DoctorAvailability.start_time).all()
+    return jsonify({'availability': [{
+        'id': s.id,
+        'day_of_week': s.day_of_week,
+        'start_time': s.start_time,
+        'end_time': s.end_time,
+    } for s in slots]}), 200
+
+
+@app.route("/doctorAvailability", methods=['PUT'])
+@jwt_required()
+def set_doctor_availability():
+    doctor_id = get_jwt_identity()
+    data = request.get_json()
+    slots = data.get('availability', [])
+
+    for s in slots:
+        if s.get('day_of_week') not in range(7):
+            return jsonify({'error': 'Invalid day_of_week'}), 400
+        if s.get('start_time', '') >= s.get('end_time', ''):
+            return jsonify({'error': 'Start time must be before end time'}), 400
+
+    DoctorAvailability.query.filter_by(doctor_id=doctor_id).delete()
+    for s in slots:
+        db.session.add(DoctorAvailability(
+            doctor_id=doctor_id,
+            day_of_week=s['day_of_week'],
+            start_time=s['start_time'],
+            end_time=s['end_time'],
+        ))
+    db.session.commit()
+    return jsonify({'message': 'Availability updated successfully'}), 200
+
+
+@app.route("/doctors/<int:doctor_id>/availableSlots", methods=['GET'])
+@jwt_required()
+def get_available_slots(doctor_id):
+    date_str = request.args.get('date')
+    if not date_str:
+        return jsonify({'error': 'date parameter required'}), 400
+
+    try:
+        selected_date = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({'error': 'Invalid date format'}), 400
+
+    day_of_week = selected_date.weekday()  # 0=Monday
+
+    windows = DoctorAvailability.query.filter_by(
+        doctor_id=doctor_id, day_of_week=day_of_week
+    ).all()
+
+    if not windows:
+        return jsonify({'slots': []}), 200
+
+    # Generate 30-min slots from availability windows
+    all_slots = []
+    for w in windows:
+        current = w.start_time
+        while current < w.end_time:
+            all_slots.append(current)
+            h, m = map(int, current.split(':'))
+            m += 30
+            if m >= 60:
+                h += 1
+                m -= 60
+            current = f"{h:02d}:{m:02d}"
+
+    # Remove slots that overlap with booked appointments
+    booked = Appointment.query.filter(
+        Appointment.doctor_id == doctor_id,
+        Appointment.date == date_str,
+        Appointment.status != 'declined'
+    ).all()
+
+    available = []
+    for slot in all_slots:
+        h, m = map(int, slot.split(':'))
+        m += 30
+        if m >= 60:
+            h += 1
+            m -= 60
+        slot_end = f"{h:02d}:{m:02d}"
+
+        if not any(appt.time_from < slot_end and appt.time_to > slot for appt in booked):
+            available.append(slot)
+
+    return jsonify({'slots': available}), 200
 
 
 @app.route('/account', methods=['GET'])

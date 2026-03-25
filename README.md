@@ -1,50 +1,68 @@
-# Medical Appointment Management System
+# MedBook
 
-A web-based system for clients to book and manage their medical appointments with doctors using Flask for the backend and React for the frontend.
+Medical appointment booking app. Clients book appointments with doctors, doctors manage their schedule and accept or decline requests.
 
-## Features
-- Secure user authentication (clients & doctors)
-- Clients can book, update, and cancel appointments
-- Doctors can manage their schedules and appointments
-- Real-time appointment validation (no duplicate bookings)
+## Tech Stack
 
-## Installation
+**Backend** — Python / Flask
+- Flask with SQLAlchemy (SQLite)
 
-### 1. Clone the Repository
+**Frontend** — React
+- Tailwind CSS for styling
+
+## How to Run
+
+### 1. Clone
 ```bash
 git clone https://github.com/GiorgosK96/Medbook.git
 cd Medbook
 ```
 
-### 2. Install Backend Dependencies
+### 2. Backend
 ```bash
 cd backend
 pip install -r ../requirements.txt
 ```
 
-### 3. Install Frontend Dependencies
-```bash
-cd frontend
-npm install
-```
-
-### 4. Set Up Environment Variables
-Create a `.env` file in the backend directory with:
+Create a `.env` file in `backend/`:
 ```
 SQLALCHEMY_DATABASE_URI=sqlite:///appointments.db
 JWT_SECRET_KEY=your_secret_key_here
 ```
 
-### 5. Start the Application
-
-**Start the backend:**
+Seed the database with sample data (optional):
 ```bash
-cd backend
+python seed.py
+```
+
+Start the server:
+```bash
 python api.py
 ```
 
-**Start the frontend (in a new terminal):**
+Runs on `http://localhost:5000`.
+
+### 3. Frontend
 ```bash
 cd frontend
+npm install
 npm start
 ```
+
+Runs on `http://localhost:3000`.
+
+## What It Does
+
+**Clients** can:
+- Register, log in, edit their profile
+- Book appointments by choosing a doctor, date, and available time slot
+- View, edit, and cancel their appointments
+- See appointment status (pending / confirmed / declined)
+
+**Doctors** can:
+- Set their weekly availability (per day, multiple time windows)
+- Accept or decline incoming appointment requests
+- Cancel confirmed appointments
+- Edit their profile
+
+The app validates overlapping bookings, blocks past dates, and dynamically shows only available time slots based on each doctor's schedule.
