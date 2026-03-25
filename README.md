@@ -12,8 +12,8 @@ A web-based system for patients to book and manage their medical appointments wi
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/GiorgosK96/Medical_Appointment_App.git
-cd Medical_Appointment_App
+git clone https://github.com/GiorgosK96/Medbook.git
+cd Medbook
 ```
 
 ### 2. Install Backend Dependencies
