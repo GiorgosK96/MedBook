@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 from dotenv import load_dotenv
 from config import Config
@@ -74,7 +74,7 @@ def login():
         client = Client.query.filter_by(email=email).first()
 
         if client and client.check_password(password):
-            token = create_access_token(identity=client.id)
+            token = create_access_token(identity=str(client.id), additional_claims={'role': 'client'})
             return jsonify({
                 'message': 'Login successful',
                 'token': token,
@@ -90,7 +90,7 @@ def login():
         doctor = Doctor.query.filter_by(email=email).first()
 
         if doctor and doctor.check_password(password):
-            token = create_access_token(identity=doctor.id)
+            token = create_access_token(identity=str(doctor.id), additional_claims={'role': 'doctor'})
             return jsonify({
                 'message': 'Login successful',
                 'token': token,
@@ -108,7 +108,9 @@ def login():
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['GET'])
 @jwt_required()
 def get_appointment(appointment_id):
-    current_user_id = get_jwt_identity()
+    if get_jwt().get('role') != 'client':
+        return jsonify({'error': 'Clients only'}), 403
+    current_user_id = int(get_jwt_identity())
 
     appointment = Appointment.query.filter_by(id=appointment_id, client_id=current_user_id).first()
 
@@ -135,7 +137,9 @@ def get_appointment(appointment_id):
 @app.route("/ShowAppointment", methods=['GET'])
 @jwt_required()
 def show_appointment():
-    current_client_id = get_jwt_identity()
+    if get_jwt().get('role') != 'client':
+        return jsonify({'error': 'Clients only'}), 403
+    current_client_id = int(get_jwt_identity())
 
     appointments = Appointment.query.filter_by(client_id=current_client_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
 
@@ -159,8 +163,10 @@ def show_appointment():
 @app.route("/AddAppointment", methods=['POST'])
 @jwt_required()
 def add_appointment():
+    if get_jwt().get('role') != 'client':
+        return jsonify({'error': 'Clients only'}), 403
     data = request.get_json()
-    client_id = get_jwt_identity()
+    client_id = int(get_jwt_identity())
     doctor_id = data.get('doctor_id')
     date_str = data.get('date')
     time_from_str = data.get('time_from')
@@ -224,8 +230,10 @@ def add_appointment():
 @app.route("/UpdateAppointment/<int:appointment_id>", methods=['PUT'])
 @jwt_required()
 def update_appointment(appointment_id):
+    if get_jwt().get('role') != 'client':
+        return jsonify({'error': 'Clients only'}), 403
     data = request.get_json()
-    client_id = get_jwt_identity()
+    client_id = int(get_jwt_identity())
 
 
     appointment = Appointment.query.filter_by(id=appointment_id, client_id=client_id).first()
@@ -300,7 +308,9 @@ def update_appointment(appointment_id):
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
 def delete_appointments(appointment_id):
-    current_client_id = get_jwt_identity()
+    if get_jwt().get('role') != 'client':
+        return jsonify({'error': 'Clients only'}), 403
+    current_client_id = int(get_jwt_identity())
 
     appointment = Appointment.query.filter_by(id=appointment_id, client_id=current_client_id).first()
 
@@ -322,7 +332,9 @@ def get_doctors():
 @app.route("/doctorAppointments/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
 def delete_doctor_appointments(appointment_id):
-    doctor_id = get_jwt_identity()
+    if get_jwt().get('role') != 'doctor':
+        return jsonify({'error': 'Doctors only'}), 403
+    doctor_id = int(get_jwt_identity())
 
     appointment = Appointment.query.filter_by(id=appointment_id, doctor_id=doctor_id).first()
 
@@ -340,7 +352,9 @@ def delete_doctor_appointments(appointment_id):
 @app.route("/doctorAppointments", methods=['GET'])
 @jwt_required()
 def get_doctor_appointments():
-    doctor_id = get_jwt_identity()
+    if get_jwt().get('role') != 'doctor':
+        return jsonify({'error': 'Doctors only'}), 403
+    doctor_id = int(get_jwt_identity())
 
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
 
@@ -364,7 +378,9 @@ def get_doctor_appointments():
 @app.route("/doctorAppointments/<int:appointment_id>/status", methods=['PATCH'])
 @jwt_required()
 def update_appointment_status(appointment_id):
-    doctor_id = get_jwt_identity()
+    if get_jwt().get('role') != 'doctor':
+        return jsonify({'error': 'Doctors only'}), 403
+    doctor_id = int(get_jwt_identity())
     data = request.get_json()
     new_status = data.get('status')
 
@@ -384,7 +400,9 @@ def update_appointment_status(appointment_id):
 @app.route("/doctorAvailability", methods=['GET'])
 @jwt_required()
 def get_doctor_availability():
-    doctor_id = get_jwt_identity()
+    if get_jwt().get('role') != 'doctor':
+        return jsonify({'error': 'Doctors only'}), 403
+    doctor_id = int(get_jwt_identity())
     slots = DoctorAvailability.query.filter_by(doctor_id=doctor_id)\
         .order_by(DoctorAvailability.day_of_week, DoctorAvailability.start_time).all()
     return jsonify({'availability': [{
@@ -398,7 +416,9 @@ def get_doctor_availability():
 @app.route("/doctorAvailability", methods=['PUT'])
 @jwt_required()
 def set_doctor_availability():
-    doctor_id = get_jwt_identity()
+    if get_jwt().get('role') != 'doctor':
+        return jsonify({'error': 'Doctors only'}), 403
+    doctor_id = int(get_jwt_identity())
     data = request.get_json()
     slots = data.get('availability', [])
 
@@ -479,8 +499,8 @@ def get_available_slots(doctor_id):
 @app.route('/account', methods=['GET'])
 @jwt_required()
 def account():
-    user_id = get_jwt_identity()
-    role = request.args.get('role')
+    user_id = int(get_jwt_identity())
+    role = get_jwt().get('role')
 
     if role == 'client':
 
@@ -516,9 +536,9 @@ def account():
 @app.route('/account', methods=['PUT'])
 @jwt_required()
 def update_account():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
-    role = data.get('role')
+    role = get_jwt().get('role')
 
     if role == 'client':
         user = Client.query.get(user_id)
