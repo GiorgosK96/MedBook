@@ -19,8 +19,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest pytest-flask
-
+        run: pip install -r ../requirements.txt pytest pytest-flask
         working-directory: backend
 
       - name: Run tests
