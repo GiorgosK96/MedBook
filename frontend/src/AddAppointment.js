@@ -18,7 +18,7 @@ export const AddAppointment = () => {
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
-    fetch('/doctors', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch('/doctors', { method: 'GET', credentials: 'include' })
     .then(r => r.json()).then(data => setDoctors(data.doctors))
     .catch(() => showToast(t.errorOccurred, 'error'))
     .finally(() => setLoading(false));
@@ -28,9 +28,7 @@ export const AddAppointment = () => {
     if (!doctorId || !date) { setAvailableSlots(null); return; }
     setLoadingSlots(true);
     setTimeFrom(''); setTimeTo('');
-    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
+    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => setAvailableSlots(data.slots))
       .catch(() => showToast(t.errorOccurred, 'error'))
@@ -41,7 +39,8 @@ export const AddAppointment = () => {
     if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
     fetch('/AddAppointment', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ date, time_from: timeFrom, time_to: timeTo, doctor_id: doctorId, comments: comment }),
     })
     .then(r => r.json())

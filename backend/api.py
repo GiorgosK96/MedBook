@@ -1,8 +1,11 @@
+import os
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, unset_jwt_cookies
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from datetime import datetime
 from dotenv import load_dotenv
 from config import Config
@@ -15,11 +18,13 @@ app.config.from_object(Config)
 
 db.init_app(app)
 bcrypt.init_app(app)
-CORS(app)
+CORS(app, origins=[os.getenv('FRONTEND_URL', 'http://localhost:3000')], supports_credentials=True)
 jwt = JWTManager(app)
+limiter = Limiter(get_remote_address, app=app, default_limits=[])
 
 
 @app.route("/register", methods=['POST'])
+@limiter.limit("5/minute")
 def register():
     data = request.get_json()
     full_name = data.get('full_name')
@@ -63,6 +68,7 @@ def register():
 
 
 @app.route("/login", methods=['POST'])
+@limiter.limit("10/minute")
 def login():
     data = request.get_json()
     email = data.get('email')
@@ -75,13 +81,14 @@ def login():
 
         if client and client.check_password(password):
             token = create_access_token(identity=str(client.id), additional_claims={'role': 'client'})
-            return jsonify({
+            response = jsonify({
                 'message': 'Login successful',
-                'token': token,
                 'username': client.username,
                 'full_name': client.full_name,
                 'role': 'client'
-            }), 200
+            })
+            set_access_cookies(response, token)
+            return response, 200
         else:
             return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
 
@@ -91,18 +98,26 @@ def login():
 
         if doctor and doctor.check_password(password):
             token = create_access_token(identity=str(doctor.id), additional_claims={'role': 'doctor'})
-            return jsonify({
+            response = jsonify({
                 'message': 'Login successful',
-                'token': token,
                 'username': doctor.username,
                 'specialization': doctor.specialization,
                 'role': 'doctor'
-            }), 200
+            })
+            set_access_cookies(response, token)
+            return response, 200
         else:
             return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
 
     else:
         return jsonify({'error': 'Invalid role'}), 400
+
+
+@app.route("/logout", methods=['POST'])
+def logout():
+    response = jsonify({'message': 'Logged out successfully'})
+    unset_jwt_cookies(response)
+    return response, 200
 
 
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['GET'])
@@ -595,4 +610,4 @@ def update_account():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'False').lower() == 'true')

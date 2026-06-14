@@ -35,8 +35,7 @@ function Login() {
       .then((data) => {
         if (data.error) { showToast(data.error, 'error'); }
         else {
-          if (data.token) {
-            localStorage.setItem('token', data.token);
+          if (data.role) {
             localStorage.setItem('username', data.username);
             localStorage.setItem('role', data.role);
             navigate(data.role === 'client' ? "/ManageAppointment" : "/DoctorsAppointments");

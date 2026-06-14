@@ -2,7 +2,6 @@ import { Navigate } from 'react-router-dom';
 
 function getAuth() {
   return {
-    token: localStorage.getItem('token'),
     role: localStorage.getItem('role'),
   };
 }
@@ -12,9 +11,9 @@ function getDashboard(role) {
 }
 
 export function ProtectedRoute({ children, allowedRole }) {
-  const { token, role } = getAuth();
+  const { role } = getAuth();
 
-  if (!token) {
+  if (!role) {
     return <Navigate to="/login" replace />;
   }
 
@@ -26,9 +25,9 @@ export function ProtectedRoute({ children, allowedRole }) {
 }
 
 export function PublicRoute({ children }) {
-  const { token, role } = getAuth();
+  const { role } = getAuth();
 
-  if (token) {
+  if (role) {
     return <Navigate to={getDashboard(role)} replace />;
   }
 
