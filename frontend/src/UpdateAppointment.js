@@ -18,6 +18,7 @@ export const UpdateAppointment = () => {
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { appointmentId } = useParams();
@@ -43,6 +44,7 @@ export const UpdateAppointment = () => {
 
   useEffect(() => {
     if (!doctorId || !date) { setAvailableSlots(null); return; }
+    setLoadingSlots(true);
     apiFetch(`/doctors/${doctorId}/availableSlots?date=${date}`)
       .then(r => r && r.json())
       .then(data => {
@@ -53,7 +55,8 @@ export const UpdateAppointment = () => {
         }
         setAvailableSlots(slots);
       })
-      .catch(() => showToast(t.errorOccurred, 'error'));
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setLoadingSlots(false));
   }, [doctorId, date, showToast, t.errorOccurred, initialLoaded, timeFrom]);
 
   const handleDoctorChange = (newDoctorId) => {
@@ -138,6 +141,7 @@ export const UpdateAppointment = () => {
               </select>
             </div>
           </div>
+          {loadingSlots && <p className="text-xs text-slate-400 text-center">{t.selectDateFirst}...</p>}
           {availableSlots && availableSlots.length === 0 && <p className="text-xs text-amber-600 text-center">{t.noSlotsAvailable}</p>}
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.comments}</label>

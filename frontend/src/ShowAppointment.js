@@ -51,11 +51,12 @@ function ShowAppointment() {
         <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
           a.status === 'confirmed' ? 'bg-green-100 text-green-700' :
           a.status === 'declined' ? 'bg-red-100 text-red-700' :
+          a.status === 'cancelled' ? 'bg-slate-100 text-slate-500' :
           'bg-amber-100 text-amber-700'
-        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : t.statusPending}</span></span>
+        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : a.status === 'cancelled' ? (t.statusCancelled || 'Cancelled') : t.statusPending}</span></span>
         {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
       </div>
-      {!dimmed && (
+      {!dimmed && a.status !== 'cancelled' && (
         <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
           <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>
           <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>

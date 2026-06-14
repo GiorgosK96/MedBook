@@ -10,6 +10,7 @@ const STATUS_STYLES = {
   pending: 'bg-amber-100 text-amber-700',
   confirmed: 'bg-green-100 text-green-700',
   declined: 'bg-red-100 text-red-700',
+  cancelled: 'bg-slate-100 text-slate-500',
 };
 
 function DoctorsAppointments() {
@@ -68,7 +69,7 @@ function DoctorsAppointments() {
         ) : (
           <div className="space-y-3 mb-6">
             {appointments.map(a => (
-              <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${a.status === 'declined' ? 'opacity-50' : ''}`}>
+              <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${a.status === 'declined' || a.status === 'cancelled' ? 'opacity-50' : ''}`}>
                 <div className="grid grid-cols-[100px_1fr] gap-y-1.5 text-sm">
                   <span className="font-medium text-slate-500">{t.clientName}</span>
                   <span className="text-slate-800">{a.client.full_name}</span>
@@ -82,7 +83,7 @@ function DoctorsAppointments() {
                   <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_STYLES[a.status] || STATUS_STYLES.pending}`}>{statusLabel(a.status)}</span></span>
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
-                {a.status !== 'declined' && (
+                {a.status !== 'declined' && a.status !== 'cancelled' && (
                   <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                     {a.status === 'pending' && (
                       <>
@@ -117,6 +118,7 @@ function DoctorsAppointments() {
           onConfirm={() => {
             if (confirmAction.type === 'accept') handleStatusUpdate(confirmAction.id, 'confirmed');
             else if (confirmAction.type === 'decline') handleStatusUpdate(confirmAction.id, 'declined');
+            else if (confirmAction.type === 'cancel') handleStatusUpdate(confirmAction.id, 'cancelled');
             else handleDelete();
           }}
           onCancel={() => setConfirmAction(null)}
