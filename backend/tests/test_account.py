@@ -30,12 +30,14 @@ class TestGetAccount:
         assert data['role'] == 'doctor'
         assert 'password' not in data
 
-    def test_get_account_invalid_role_returns_400(self, client):
-        register_client(client)
-        token = login_client(client).get_json()['token']
+    def test_role_derived_from_token_not_query_param(self, client):
+        register_doctor(client)
+        token = login_doctor(client).get_json()['token']
 
-        res = client.get('/account?role=admin', headers=auth_headers(token))
-        assert res.status_code == 400
+        # Even with ?role=client in query, the JWT role (doctor) is authoritative
+        res = client.get('/account?role=client', headers=auth_headers(token))
+        assert res.status_code == 200
+        assert res.get_json()['role'] == 'doctor'
 
     def test_get_account_requires_auth(self, client):
         res = client.get('/account?role=client', headers=auth_headers('badtoken'))

@@ -13,8 +13,7 @@ function Account() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
-    fetch(`/account?role=${role}`, { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch('/account', { method: 'GET', credentials: 'include' })
     .then(r => r.json())
     .then(data => { if (data.error) showToast(data.error, 'error'); else setAccountData(data); })
     .catch(() => showToast(t.failedToLoad, 'error'))
@@ -38,9 +37,9 @@ function Account() {
     setSaving(true);
     fetch('/account', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
-        role: localStorage.getItem('role'),
         full_name: form.full_name.trim(),
         email: form.email.trim(),
         ...(form.new_password ? { current_password: form.current_password, new_password: form.new_password } : {}),

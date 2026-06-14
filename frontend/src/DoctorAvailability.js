@@ -14,7 +14,7 @@ function DoctorAvailability() {
   const dayNames = [t.monday, t.tuesday, t.wednesday, t.thursday, t.friday, t.saturday, t.sunday];
 
   useEffect(() => {
-    fetch('/doctorAvailability', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch('/doctorAvailability', { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
         const grouped = Array.from({ length: 7 }, () => []);
@@ -62,7 +62,8 @@ function DoctorAvailability() {
     setSaving(true);
     fetch('/doctorAvailability', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ availability: flat }),
     })
       .then(r => r.json().then(d => ({ ok: r.ok, d })))

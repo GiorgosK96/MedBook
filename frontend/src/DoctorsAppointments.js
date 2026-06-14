@@ -19,7 +19,7 @@ function DoctorsAppointments() {
   const [confirmAction, setConfirmAction] = useState(null); // { id, type: 'cancel'|'accept'|'decline' }
 
   useEffect(() => {
-    fetch('/doctorAppointments', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch('/doctorAppointments', { method: 'GET', credentials: 'include' })
       .then(r => { if (r.ok) return r.json(); throw new Error(); })
       .then(data => setAppointments(data.appointments))
       .catch(() => showToast(t.errorOccurred, 'error'))
@@ -29,7 +29,7 @@ function DoctorsAppointments() {
   const handleDelete = () => {
     const id = confirmAction.id;
     setConfirmAction(null);
-    fetch(`/doctorAppointments/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch(`/doctorAppointments/${id}`, { method: 'DELETE', credentials: 'include' })
       .then(r => r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
         else showToast(d.message, 'error');
@@ -41,7 +41,8 @@ function DoctorsAppointments() {
     setConfirmAction(null);
     fetch(`/doctorAppointments/${id}/status`, {
       method: 'PATCH',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ status }),
     })
       .then(r => r.json().then(d => {
