@@ -5,18 +5,18 @@ export default function Navbar() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
 
-  if (!token) return null;
+  if (!role) return null;
 
   const dashboard = role === 'doctor' ? '/DoctorsAppointments' : '/ManageAppointment';
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    navigate('/login');
+    fetch('/logout', { method: 'POST', credentials: 'include' }).finally(() => {
+      localStorage.removeItem('username');
+      localStorage.removeItem('role');
+      navigate('/login');
+    });
   };
 
   const navLinkClass = ({ isActive }) =>

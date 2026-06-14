@@ -20,13 +20,13 @@ export const UpdateAppointment = () => {
   const { appointmentId } = useParams();
 
   useEffect(() => {
-    fetch('/doctors', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch('/doctors', { method: 'GET', credentials: 'include' })
       .then(r => r.json()).then(data => setDoctors(data.doctors))
-      .catch(err => console.error('Failed to fetch doctors', err));
-  }, []);
+      .catch(() => showToast(t.errorOccurred, 'error'));
+  }, [t.errorOccurred, showToast]);
 
   useEffect(() => {
-    fetch(`/ShowAppointment/${appointmentId}`, { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+    fetch(`/ShowAppointment/${appointmentId}`, { method: 'GET', credentials: 'include' })
       .then(r => r.json())
       .then(data => { setDate(data.date); setTimeFrom(data.time_from); setTimeTo(data.time_to); setDoctorId(data.doctor.id); setComment(data.comments); setInitialLoaded(true); })
       .catch(() => showToast(t.errorOccurred, 'error'))
@@ -35,9 +35,7 @@ export const UpdateAppointment = () => {
 
   useEffect(() => {
     if (!doctorId || !date) { setAvailableSlots(null); return; }
-    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
+    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
         let slots = data.slots;
@@ -64,7 +62,8 @@ export const UpdateAppointment = () => {
     if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
     fetch(`/UpdateAppointment/${appointmentId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ date, time_from: timeFrom, time_to: timeTo, doctor_id: doctorId, comments: comment }),
     })
       .then(r => r.json())
