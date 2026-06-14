@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -15,9 +16,9 @@ function ShowAppointment() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/ShowAppointment', { method: 'GET', credentials: 'include' })
-      .then(r => { if (r.ok) return r.json(); throw new Error(); })
-      .then(data => setAppointments(data.appointments))
+    apiFetch('/ShowAppointment')
+      .then(r => r && r.json())
+      .then(data => data && setAppointments(data.appointments))
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
@@ -25,8 +26,8 @@ function ShowAppointment() {
   const handleDelete = () => {
     const id = confirmId;
     setConfirmId(null);
-    fetch(`/ShowAppointment/${id}`, { method: 'DELETE', credentials: 'include' })
-      .then(r => r.json().then(d => {
+    apiFetch(`/ShowAppointment/${id}`, { method: 'DELETE' })
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
         else showToast(d.message, 'error');
       }))

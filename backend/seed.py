@@ -6,8 +6,16 @@ Usage:
     python seed.py
 """
 
+from datetime import date, timedelta
 from api import app
 from models import db, bcrypt, Client, Doctor, Appointment, DoctorAvailability
+
+def next_weekday(offset_days):
+    """Return a future weekday date offset_days from today, skipping weekends."""
+    d = date.today() + timedelta(days=offset_days)
+    while d.weekday() >= 5:  # skip Saturday/Sunday
+        d += timedelta(days=1)
+    return d.strftime('%Y-%m-%d')
 
 doctors_data = [
     {'full_name': 'Dr. Maria Papadopoulou', 'username': 'mpapadopoulou', 'email': 'maria.papadopoulou@medbook.com', 'password': 'doctor123', 'specialization': 'Cardiologist'},
@@ -26,14 +34,15 @@ clients_data = [
     {'full_name': 'Thanasis Raptis', 'username': 'traptis', 'email': 'thanasis@example.com', 'password': 'client123'},
 ]
 
-appointments_data = [
-    {'client_idx': 0, 'doctor_idx': 0, 'date': '2026-03-27', 'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup', 'status': 'confirmed'},
-    {'client_idx': 0, 'doctor_idx': 2, 'date': '2026-03-28', 'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches', 'status': 'pending'},
-    {'client_idx': 1, 'doctor_idx': 1, 'date': '2026-03-27', 'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm', 'status': 'confirmed'},
-    {'client_idx': 1, 'doctor_idx': 4, 'date': '2026-03-30', 'time_from': '14:00', 'time_to': '14:30', 'comments': '', 'status': 'pending'},
-    {'client_idx': 2, 'doctor_idx': 3, 'date': '2026-03-29', 'time_from': '16:00', 'time_to': '16:45', 'comments': 'Knee pain after running', 'status': 'declined'},
-    {'client_idx': 2, 'doctor_idx': 6, 'date': '2026-04-01', 'time_from': '12:00', 'time_to': '12:50', 'comments': 'Follow-up session', 'status': 'pending'},
-]
+def get_appointments_data():
+    return [
+        {'client_idx': 0, 'doctor_idx': 0, 'date': next_weekday(3),  'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup', 'status': 'confirmed'},
+        {'client_idx': 0, 'doctor_idx': 2, 'date': next_weekday(5),  'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches', 'status': 'pending'},
+        {'client_idx': 1, 'doctor_idx': 1, 'date': next_weekday(3),  'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm', 'status': 'confirmed'},
+        {'client_idx': 1, 'doctor_idx': 4, 'date': next_weekday(7),  'time_from': '14:00', 'time_to': '14:30', 'comments': '', 'status': 'pending'},
+        {'client_idx': 2, 'doctor_idx': 3, 'date': next_weekday(10), 'time_from': '16:00', 'time_to': '16:30', 'comments': 'Knee pain after running', 'status': 'declined'},
+        {'client_idx': 2, 'doctor_idx': 6, 'date': next_weekday(14), 'time_from': '12:00', 'time_to': '12:30', 'comments': 'Follow-up session', 'status': 'pending'},
+    ]
 
 
 def seed():
@@ -64,7 +73,7 @@ def seed():
         db.session.flush()  # Get IDs assigned
 
         # Create appointments
-        for a in appointments_data:
+        for a in get_appointments_data():
             appointment = Appointment(
                 client_id=clients[a['client_idx']].id,
                 doctor_id=doctors[a['doctor_idx']].id,
@@ -93,7 +102,7 @@ def seed():
         print('Seeded successfully!')
         print(f'  {len(doctors)} doctors')
         print(f'  {len(clients)} clients')
-        print(f'  {len(appointments_data)} appointments')
+        print(f'  {len(get_appointments_data())} appointments')
         print(f'  {availability_count} availability slots')
         print()
         print('Sample logins:')

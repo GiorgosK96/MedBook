@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -16,12 +17,12 @@ function DoctorsAppointments() {
   const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirmAction, setConfirmAction] = useState(null); // { id, type: 'cancel'|'accept'|'decline' }
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
-    fetch('/doctorAppointments', { method: 'GET', credentials: 'include' })
-      .then(r => { if (r.ok) return r.json(); throw new Error(); })
-      .then(data => setAppointments(data.appointments))
+    apiFetch('/doctorAppointments')
+      .then(r => r && r.json())
+      .then(data => data && setAppointments(data.appointments))
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
@@ -29,8 +30,8 @@ function DoctorsAppointments() {
   const handleDelete = () => {
     const id = confirmAction.id;
     setConfirmAction(null);
-    fetch(`/doctorAppointments/${id}`, { method: 'DELETE', credentials: 'include' })
-      .then(r => r.json().then(d => {
+    apiFetch(`/doctorAppointments/${id}`, { method: 'DELETE' })
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
         else showToast(d.message, 'error');
       }))
@@ -39,13 +40,12 @@ function DoctorsAppointments() {
 
   const handleStatusUpdate = (id, status) => {
     setConfirmAction(null);
-    fetch(`/doctorAppointments/${id}/status`, {
+    apiFetch(`/doctorAppointments/${id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ status }),
     })
-      .then(r => r.json().then(d => {
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.map(a => a.id === id ? { ...a, status } : a)); }
         else showToast(d.error, 'error');
       }))

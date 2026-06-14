@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 
 function Account() {
@@ -13,9 +14,9 @@ function Account() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch('/account', { method: 'GET', credentials: 'include' })
-    .then(r => r.json())
-    .then(data => { if (data.error) showToast(data.error, 'error'); else setAccountData(data); })
+    apiFetch('/account')
+    .then(r => r && r.json())
+    .then(data => { if (!data) return; if (data.error) showToast(data.error, 'error'); else setAccountData(data); })
     .catch(() => showToast(t.failedToLoad, 'error'))
     .finally(() => setLoading(false));
   }, [t.failedToLoad, showToast]);
@@ -25,9 +26,7 @@ function Account() {
     setEditing(true);
   };
 
-  const cancelEditing = () => {
-    setEditing(false);
-  };
+  const cancelEditing = () => setEditing(false);
 
   const handleSave = () => {
     if (!form.full_name.trim() || !form.email.trim()) {
@@ -35,25 +34,21 @@ function Account() {
       return;
     }
     setSaving(true);
-    fetch('/account', {
+    apiFetch('/account', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({
         full_name: form.full_name.trim(),
         email: form.email.trim(),
         ...(form.new_password ? { current_password: form.current_password, new_password: form.new_password } : {}),
       }),
     })
-    .then(r => r.json().then(data => ({ ok: r.ok, data })))
-    .then(({ ok, data }) => {
-      if (ok) {
-        setAccountData(data);
-        setEditing(false);
-        showToast(t.profileUpdated, 'success');
-      } else {
-        showToast(data.error, 'error');
-      }
+    .then(r => r && r.json().then(data => ({ ok: r.ok, data })))
+    .then(result => {
+      if (!result) return;
+      const { ok, data } = result;
+      if (ok) { setAccountData(data); setEditing(false); showToast(t.profileUpdated, 'success'); }
+      else showToast(data.error, 'error');
     })
     .catch(() => showToast(t.errorOccurred, 'error'))
     .finally(() => setSaving(false));
@@ -76,7 +71,6 @@ function Account() {
               <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.email}</label>
               <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputClass} />
             </div>
-
             <div className="border-t border-slate-100 pt-4">
               <div className="mb-3">
                 <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.currentPassword}</label>
@@ -87,19 +81,11 @@ function Account() {
                 <input type="password" value={form.new_password} onChange={e => setForm({ ...form, new_password: e.target.value })} className={inputClass} />
               </div>
             </div>
-
             <div className="flex gap-3 pt-2">
-              <button
-                onClick={cancelEditing}
-                className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-              >
+              <button onClick={cancelEditing} className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
                 {t.cancelBtn}
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
-              >
+              <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50">
                 {t.saveChanges}
               </button>
             </div>
@@ -131,10 +117,7 @@ function Account() {
                 </>
               )}
             </div>
-            <button
-              onClick={startEditing}
-              className="w-full mt-5 py-2.5 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-            >
+            <button onClick={startEditing} className="w-full mt-5 py-2.5 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
               {t.editProfile}
             </button>
           </div>

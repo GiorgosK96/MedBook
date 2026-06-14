@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatSlot } from './utils/timeSlots';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 
 export const UpdateAppointment = () => {
   const { t } = useLanguage();
   const showToast = useToast();
+  const navigate = useNavigate();
   const [doctorId, setDoctorId] = useState('');
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
@@ -17,29 +19,35 @@ export const UpdateAppointment = () => {
   const [availableSlots, setAvailableSlots] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const { appointmentId } = useParams();
 
   useEffect(() => {
-    fetch('/doctors', { method: 'GET', credentials: 'include' })
-      .then(r => r.json()).then(data => setDoctors(data.doctors))
+    apiFetch('/doctors')
+      .then(r => r && r.json())
+      .then(data => data && setDoctors(data.doctors))
       .catch(() => showToast(t.errorOccurred, 'error'));
   }, [t.errorOccurred, showToast]);
 
   useEffect(() => {
-    fetch(`/ShowAppointment/${appointmentId}`, { method: 'GET', credentials: 'include' })
-      .then(r => r.json())
-      .then(data => { setDate(data.date); setTimeFrom(data.time_from); setTimeTo(data.time_to); setDoctorId(data.doctor.id); setComment(data.comments); setInitialLoaded(true); })
+    apiFetch(`/ShowAppointment/${appointmentId}`)
+      .then(r => r && r.json())
+      .then(data => {
+        if (!data) return;
+        setDate(data.date); setTimeFrom(data.time_from); setTimeTo(data.time_to);
+        setDoctorId(data.doctor.id); setComment(data.comments); setInitialLoaded(true);
+      })
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoading(false));
   }, [appointmentId, t.errorOccurred, showToast]);
 
   useEffect(() => {
     if (!doctorId || !date) { setAvailableSlots(null); return; }
-    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, { credentials: 'include' })
-      .then(r => r.json())
+    apiFetch(`/doctors/${doctorId}/availableSlots?date=${date}`)
+      .then(r => r && r.json())
       .then(data => {
+        if (!data) return;
         let slots = data.slots;
-        // Include the current appointment's time in available slots
         if (initialLoaded && timeFrom && !slots.includes(timeFrom)) {
           slots = [...slots, timeFrom].sort();
         }
@@ -60,18 +68,20 @@ export const UpdateAppointment = () => {
 
   const handleSubmit = () => {
     if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
-    fetch(`/UpdateAppointment/${appointmentId}`, {
+    setSubmitting(true);
+    apiFetch(`/UpdateAppointment/${appointmentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ date, time_from: timeFrom, time_to: timeTo, doctor_id: doctorId, comments: comment }),
     })
-      .then(r => r.json())
+      .then(r => r && r.json())
       .then(data => {
+        if (!data) return;
         if (data.error) showToast(`Error: ${data.error}`, 'error');
-        else showToast(data.message, 'success');
+        else { showToast(data.message, 'success'); navigate('/ShowAppointment'); }
       })
-      .catch(() => showToast(t.errorOccurred, 'error'));
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setSubmitting(false));
   };
 
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
@@ -133,8 +143,13 @@ export const UpdateAppointment = () => {
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.comments}</label>
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} className={`${inputClass} resize-y`} />
           </div>
-          <button type="button" onClick={handleSubmit} className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-            {t.saveChanges}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {submitting ? t.saving || 'Saving...' : t.saveChanges}
           </button>
         </div>
       </div>
