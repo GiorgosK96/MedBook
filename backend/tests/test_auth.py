@@ -1,10 +1,6 @@
 import pytest
-from helpers import register_client, register_doctor, login_client, login_doctor
+from helpers import register_client, register_doctor, login_client, login_doctor, get_token
 
-
-# ===========================================================================
-# Registration
-# ===========================================================================
 
 class TestRegisterClient:
     def test_register_client_success(self, client):
@@ -14,13 +10,13 @@ class TestRegisterClient:
 
     def test_register_client_duplicate_email(self, client):
         register_client(client)
-        res = register_client(client, username='other_user')  # same email, different username
+        res = register_client(client, username='other_user')
         assert res.status_code == 400
         assert 'error' in res.get_json()
 
     def test_register_client_duplicate_username(self, client):
         register_client(client)
-        res = register_client(client, email='other@test.com')  # same username, different email
+        res = register_client(client, email='other@test.com')
         assert res.status_code == 400
         assert 'error' in res.get_json()
 
@@ -38,19 +34,18 @@ class TestRegisterDoctor:
             'email': 'nospec@test.com',
             'password': 'pass123',
             'role': 'doctor',
-            # specialization intentionally omitted
         })
         assert res.status_code == 400
         assert 'Specialization' in res.get_json()['error']
 
     def test_register_doctor_duplicate_email(self, client):
         register_doctor(client)
-        res = register_doctor(client, username='docuser2')  # same email
+        res = register_doctor(client, username='docuser2')
         assert res.status_code == 400
 
     def test_register_doctor_duplicate_username(self, client):
         register_doctor(client)
-        res = register_doctor(client, email='other_doc@test.com')  # same username
+        res = register_doctor(client, email='other_doc@test.com')
         assert res.status_code == 400
 
 
@@ -67,20 +62,15 @@ class TestRegisterInvalidRole:
         assert 'Invalid role' in res.get_json()['error']
 
 
-# ===========================================================================
-# Login
-# ===========================================================================
-
 class TestLoginClient:
     def test_login_client_success(self, client):
         register_client(client)
         res = login_client(client)
         assert res.status_code == 200
         data = res.get_json()
-        assert 'token' in data
+        assert get_token(res) is not None
         assert data['role'] == 'client'
         assert data['username'] == 'clientuser'
-        # specialization should NOT be present for clients
         assert 'specialization' not in data
 
     def test_login_client_wrong_password(self, client):
@@ -117,7 +107,7 @@ class TestLoginDoctor:
         res = login_doctor(client)
         assert res.status_code == 200
         data = res.get_json()
-        assert 'token' in data
+        assert get_token(res) is not None
         assert data['role'] == 'doctor'
         assert data['username'] == 'docuser'
         assert data['specialization'] == 'Cardiology'
