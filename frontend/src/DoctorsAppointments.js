@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -9,6 +10,7 @@ const STATUS_STYLES = {
   pending: 'bg-amber-100 text-amber-700',
   confirmed: 'bg-green-100 text-green-700',
   declined: 'bg-red-100 text-red-700',
+  cancelled: 'bg-slate-100 text-slate-500',
 };
 
 function DoctorsAppointments() {
@@ -16,12 +18,12 @@ function DoctorsAppointments() {
   const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirmAction, setConfirmAction] = useState(null); // { id, type: 'cancel'|'accept'|'decline' }
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
-    fetch('/doctorAppointments', { method: 'GET', credentials: 'include' })
-      .then(r => { if (r.ok) return r.json(); throw new Error(); })
-      .then(data => setAppointments(data.appointments))
+    apiFetch('/doctorAppointments')
+      .then(r => r && r.json())
+      .then(data => data && setAppointments(data.appointments))
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
@@ -29,8 +31,8 @@ function DoctorsAppointments() {
   const handleDelete = () => {
     const id = confirmAction.id;
     setConfirmAction(null);
-    fetch(`/doctorAppointments/${id}`, { method: 'DELETE', credentials: 'include' })
-      .then(r => r.json().then(d => {
+    apiFetch(`/doctorAppointments/${id}`, { method: 'DELETE' })
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
         else showToast(d.message, 'error');
       }))
@@ -39,13 +41,12 @@ function DoctorsAppointments() {
 
   const handleStatusUpdate = (id, status) => {
     setConfirmAction(null);
-    fetch(`/doctorAppointments/${id}/status`, {
+    apiFetch(`/doctorAppointments/${id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ status }),
     })
-      .then(r => r.json().then(d => {
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.map(a => a.id === id ? { ...a, status } : a)); }
         else showToast(d.error, 'error');
       }))
@@ -68,7 +69,7 @@ function DoctorsAppointments() {
         ) : (
           <div className="space-y-3 mb-6">
             {appointments.map(a => (
-              <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${a.status === 'declined' ? 'opacity-50' : ''}`}>
+              <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${a.status === 'declined' || a.status === 'cancelled' ? 'opacity-50' : ''}`}>
                 <div className="grid grid-cols-[100px_1fr] gap-y-1.5 text-sm">
                   <span className="font-medium text-slate-500">{t.clientName}</span>
                   <span className="text-slate-800">{a.client.full_name}</span>
@@ -82,7 +83,7 @@ function DoctorsAppointments() {
                   <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_STYLES[a.status] || STATUS_STYLES.pending}`}>{statusLabel(a.status)}</span></span>
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
-                {a.status !== 'declined' && (
+                {a.status !== 'declined' && a.status !== 'cancelled' && (
                   <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                     {a.status === 'pending' && (
                       <>
@@ -117,6 +118,7 @@ function DoctorsAppointments() {
           onConfirm={() => {
             if (confirmAction.type === 'accept') handleStatusUpdate(confirmAction.id, 'confirmed');
             else if (confirmAction.type === 'decline') handleStatusUpdate(confirmAction.id, 'declined');
+            else if (confirmAction.type === 'cancel') handleStatusUpdate(confirmAction.id, 'cancelled');
             else handleDelete();
           }}
           onCancel={() => setConfirmAction(null)}

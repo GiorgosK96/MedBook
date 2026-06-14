@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatSlot } from './utils/timeSlots';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 
 export const AddAppointment = () => {
@@ -16,10 +17,11 @@ export const AddAppointment = () => {
   const [availableSlots, setAvailableSlots] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch('/doctors', { method: 'GET', credentials: 'include' })
-    .then(r => r.json()).then(data => setDoctors(data.doctors))
+    apiFetch('/doctors')
+    .then(r => r && r.json()).then(data => data && setDoctors(data.doctors))
     .catch(() => showToast(t.errorOccurred, 'error'))
     .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
@@ -28,27 +30,29 @@ export const AddAppointment = () => {
     if (!doctorId || !date) { setAvailableSlots(null); return; }
     setLoadingSlots(true);
     setTimeFrom(''); setTimeTo('');
-    fetch(`/doctors/${doctorId}/availableSlots?date=${date}`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => setAvailableSlots(data.slots))
+    apiFetch(`/doctors/${doctorId}/availableSlots?date=${date}`)
+      .then(r => r && r.json())
+      .then(data => data && setAvailableSlots(data.slots))
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoadingSlots(false));
   }, [doctorId, date, showToast, t.errorOccurred]);
 
   const handleSubmit = () => {
     if (!date || !timeFrom || !timeTo || !doctorId) { showToast(t.allFieldsRequired, 'error'); return; }
-    fetch('/AddAppointment', {
+    setSubmitting(true);
+    apiFetch('/AddAppointment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ date, time_from: timeFrom, time_to: timeTo, doctor_id: doctorId, comments: comment }),
     })
-    .then(r => r.json())
+    .then(r => r && r.json())
     .then(data => {
+      if (!data) return;
       if (data.error) { showToast(`Error: ${data.error}`, 'error'); }
       else { showToast(data.message, 'success'); setDate(''); setTimeFrom(''); setTimeTo(''); setDoctorId(''); setComment(''); setAvailableSlots(null); }
     })
-    .catch(() => showToast(t.errorOccurred, 'error'));
+    .catch(() => showToast(t.errorOccurred, 'error'))
+    .finally(() => setSubmitting(false));
   };
 
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";
@@ -112,8 +116,13 @@ export const AddAppointment = () => {
             <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.comments}</label>
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} className={`${inputClass} resize-y`} />
           </div>
-          <button type="button" onClick={handleSubmit} className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-            {t.bookAppointment}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {submitting ? t.saving || 'Booking...' : t.bookAppointment}
           </button>
         </div>
       </div>

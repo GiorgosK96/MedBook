@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
 import { formatDate, formatTime } from './utils/formatDate';
+import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -15,9 +16,9 @@ function ShowAppointment() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/ShowAppointment', { method: 'GET', credentials: 'include' })
-      .then(r => { if (r.ok) return r.json(); throw new Error(); })
-      .then(data => setAppointments(data.appointments))
+    apiFetch('/ShowAppointment')
+      .then(r => r && r.json())
+      .then(data => data && setAppointments(data.appointments))
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
@@ -25,8 +26,8 @@ function ShowAppointment() {
   const handleDelete = () => {
     const id = confirmId;
     setConfirmId(null);
-    fetch(`/ShowAppointment/${id}`, { method: 'DELETE', credentials: 'include' })
-      .then(r => r.json().then(d => {
+    apiFetch(`/ShowAppointment/${id}`, { method: 'DELETE' })
+      .then(r => r && r.json().then(d => {
         if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
         else showToast(d.message, 'error');
       }))
@@ -50,11 +51,12 @@ function ShowAppointment() {
         <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
           a.status === 'confirmed' ? 'bg-green-100 text-green-700' :
           a.status === 'declined' ? 'bg-red-100 text-red-700' :
+          a.status === 'cancelled' ? 'bg-slate-100 text-slate-500' :
           'bg-amber-100 text-amber-700'
-        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : t.statusPending}</span></span>
+        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : a.status === 'cancelled' ? (t.statusCancelled || 'Cancelled') : t.statusPending}</span></span>
         {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
       </div>
-      {!dimmed && (
+      {!dimmed && a.status !== 'cancelled' && (
         <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
           <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>
           <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>

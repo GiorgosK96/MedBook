@@ -208,7 +208,7 @@ def add_appointment():
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
         Appointment.time_to > time_from_str,
-        Appointment.status != 'declined'
+        Appointment.status.notin_(['declined', 'cancelled'])
     ).first()
 
     if overlapping_doctor_appointment:
@@ -220,7 +220,7 @@ def add_appointment():
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
         Appointment.time_to > time_from_str,
-        Appointment.status != 'declined'
+        Appointment.status.notin_(['declined', 'cancelled'])
     ).first()
 
     if overlapping_client_appointment:
@@ -285,7 +285,7 @@ def update_appointment(appointment_id):
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
         Appointment.id != appointment.id,
-        Appointment.status != 'declined'
+        Appointment.status.notin_(['declined', 'cancelled'])
     ).first()
 
     if overlapping_doctor_appointment:
@@ -298,7 +298,7 @@ def update_appointment(appointment_id):
         Appointment.time_from < new_time_to,
         Appointment.time_to > new_time_from,
         Appointment.id != appointment.id,
-        Appointment.status != 'declined'
+        Appointment.status.notin_(['declined', 'cancelled'])
     ).first()
 
     if overlapping_client_appointment:
@@ -399,7 +399,7 @@ def update_appointment_status(appointment_id):
     data = request.get_json()
     new_status = data.get('status')
 
-    if new_status not in ('confirmed', 'declined'):
+    if new_status not in ('confirmed', 'declined', 'cancelled'):
         return jsonify({'error': 'Invalid status'}), 400
 
     appointment = Appointment.query.filter_by(id=appointment_id, doctor_id=doctor_id).first()
@@ -493,7 +493,7 @@ def get_available_slots(doctor_id):
     booked = Appointment.query.filter(
         Appointment.doctor_id == doctor_id,
         Appointment.date == date_str,
-        Appointment.status != 'declined'
+        Appointment.status.notin_(['declined', 'cancelled'])
     ).all()
 
     available = []

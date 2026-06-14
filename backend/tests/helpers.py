@@ -30,5 +30,15 @@ def login_doctor(client, email='doc@test.com', password='pass123'):
     return client.post('/login', json={'email': email, 'password': password, 'role': 'doctor'})
 
 
+def get_token(response):
+    """Extract the JWT from the Set-Cookie header returned by /login."""
+    for cookie_header in response.headers.getlist('Set-Cookie'):
+        for part in cookie_header.split(';'):
+            part = part.strip()
+            if part.startswith('access_token_cookie='):
+                return part[len('access_token_cookie='):]
+    return None
+
+
 def auth_headers(token):
     return {'Authorization': f'Bearer {token}'}
