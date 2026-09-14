@@ -62,6 +62,38 @@ class TestRegisterInvalidRole:
         assert 'Invalid role' in res.get_json()['error']
 
 
+class TestRegisterValidation:
+    def test_missing_password_rejected(self, client):
+        res = client.post('/register', json={
+            'full_name': 'No Password',
+            'username': 'nopass',
+            'email': 'nopass@test.com',
+            'role': 'client',
+        })
+        assert res.status_code == 400
+        assert 'password' in res.get_json()['error']
+
+    def test_blank_fields_rejected(self, client):
+        res = register_client(client, full_name='   ', username='')
+        assert res.status_code == 400
+        error = res.get_json()['error']
+        assert 'full_name' in error and 'username' in error
+
+    def test_short_password_rejected(self, client):
+        res = register_client(client, password='abc')
+        assert res.status_code == 400
+        assert '6 characters' in res.get_json()['error']
+
+    def test_empty_body_rejected(self, client):
+        res = client.post('/register')
+        assert res.status_code == 400
+
+    def test_login_without_password_returns_401(self, client):
+        register_client(client)
+        res = client.post('/login', json={'email': 'client@test.com', 'role': 'client'})
+        assert res.status_code == 401
+
+
 class TestLoginClient:
     def test_login_client_success(self, client):
         register_client(client)

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
-import { TIME_SLOTS, formatSlot } from './utils/timeSlots';
+import { TIME_SLOTS } from './utils/timeSlots';
+import { formatTime } from './utils/formatDate';
 import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 
@@ -107,11 +108,11 @@ function DoctorAvailability() {
                   {availability[dayIdx].map((slot, slotIdx) => (
                     <div key={slotIdx} className="flex items-center gap-2">
                       <select value={slot.start_time} onChange={e => updateWindow(dayIdx, slotIdx, 'start_time', e.target.value)} className={inputClass}>
-                        {TIME_SLOTS.map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
+                        {TIME_SLOTS.map(s => <option key={s} value={s}>{formatTime(s)}</option>)}
                       </select>
                       <span className="text-xs text-slate-400">–</span>
                       <select value={slot.end_time} onChange={e => updateWindow(dayIdx, slotIdx, 'end_time', e.target.value)} className={inputClass}>
-                        {endSlots(slot.start_time).map(s => <option key={s} value={s}>{formatSlot(s)}</option>)}
+                        {endSlots(slot.start_time).map(s => <option key={s} value={s}>{formatTime(s)}</option>)}
                       </select>
                       <button onClick={() => removeWindow(dayIdx, slotIdx)} className="text-xs text-red-500 hover:text-red-700 transition-colors ml-1">
                         {t.remove}

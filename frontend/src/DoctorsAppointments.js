@@ -5,20 +5,14 @@ import { formatDate, formatTime } from './utils/formatDate';
 import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
-
-const STATUS_STYLES = {
-  pending: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-green-100 text-green-700',
-  declined: 'bg-red-100 text-red-700',
-  cancelled: 'bg-slate-100 text-slate-500',
-};
+import StatusBadge from './components/StatusBadge';
 
 function DoctorsAppointments() {
   const { t, lang } = useLanguage();
   const showToast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);  // { id, status }
 
   useEffect(() => {
     apiFetch('/doctorAppointments')
@@ -28,18 +22,8 @@ function DoctorsAppointments() {
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
 
-  const handleDelete = () => {
-    const id = confirmAction.id;
-    setConfirmAction(null);
-    apiFetch(`/doctorAppointments/${id}`, { method: 'DELETE' })
-      .then(r => r && r.json().then(d => {
-        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
-        else showToast(d.message, 'error');
-      }))
-      .catch(() => showToast(t.errorOccurred, 'error'));
-  };
-
-  const handleStatusUpdate = (id, status) => {
+  const handleStatusUpdate = () => {
+    const { id, status } = confirmAction;
     setConfirmAction(null);
     apiFetch(`/doctorAppointments/${id}/status`, {
       method: 'PATCH',
@@ -47,13 +31,19 @@ function DoctorsAppointments() {
       body: JSON.stringify({ status }),
     })
       .then(r => r && r.json().then(d => {
-        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.map(a => a.id === id ? { ...a, status } : a)); }
-        else showToast(d.error, 'error');
+        if (!r.ok) { showToast(d.error, 'error'); return; }
+        showToast(d.message, 'success');
+        setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
       }))
       .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
-  const statusLabel = (s) => s === 'confirmed' ? t.statusConfirmed : s === 'declined' ? t.statusDeclined : t.statusPending;
+  // [confirmation message, button label] for each status a doctor can set
+  const confirmText = {
+    confirmed: [t.confirmAccept, t.acceptAppointment],
+    declined: [t.confirmDecline, t.declineAppointment],
+    cancelled: [t.confirmCancel, t.cancelAppointment],
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 pb-10 pt-16 font-sans">
@@ -80,19 +70,19 @@ function DoctorsAppointments() {
                   <span className="font-medium text-slate-500">{t.time}</span>
                   <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
                   <span className="font-medium text-slate-500">{t.status}</span>
-                  <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_STYLES[a.status] || STATUS_STYLES.pending}`}>{statusLabel(a.status)}</span></span>
+                  <span><StatusBadge status={a.status} /></span>
                   {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
                 </div>
-                {a.status !== 'declined' && a.status !== 'cancelled' && (
+                {(a.status === 'pending' || a.status === 'confirmed') && (
                   <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                     {a.status === 'pending' && (
                       <>
-                        <button onClick={() => setConfirmAction({ id: a.id, type: 'accept' })} className="px-3 py-1.5 text-xs font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors">{t.acceptAppointment}</button>
-                        <button onClick={() => setConfirmAction({ id: a.id, type: 'decline' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.declineAppointment}</button>
+                        <button onClick={() => setConfirmAction({ id: a.id, status: 'confirmed' })} className="px-3 py-1.5 text-xs font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors">{t.acceptAppointment}</button>
+                        <button onClick={() => setConfirmAction({ id: a.id, status: 'declined' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.declineAppointment}</button>
                       </>
                     )}
                     {a.status === 'confirmed' && (
-                      <button onClick={() => setConfirmAction({ id: a.id, type: 'cancel' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
+                      <button onClick={() => setConfirmAction({ id: a.id, status: 'cancelled' })} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>
                     )}
                   </div>
                 )}
@@ -104,23 +94,10 @@ function DoctorsAppointments() {
 
       {confirmAction && (
         <ConfirmModal
-          message={
-            confirmAction.type === 'accept' ? t.confirmAccept :
-            confirmAction.type === 'decline' ? t.confirmDecline :
-            t.confirmDelete
-          }
-          confirmLabel={
-            confirmAction.type === 'accept' ? t.acceptAppointment :
-            confirmAction.type === 'decline' ? t.declineAppointment :
-            undefined
-          }
-          variant={confirmAction.type === 'accept' ? 'success' : 'danger'}
-          onConfirm={() => {
-            if (confirmAction.type === 'accept') handleStatusUpdate(confirmAction.id, 'confirmed');
-            else if (confirmAction.type === 'decline') handleStatusUpdate(confirmAction.id, 'declined');
-            else if (confirmAction.type === 'cancel') handleStatusUpdate(confirmAction.id, 'cancelled');
-            else handleDelete();
-          }}
+          message={confirmText[confirmAction.status][0]}
+          confirmLabel={confirmText[confirmAction.status][1]}
+          variant={confirmAction.status === 'confirmed' ? 'success' : 'danger'}
+          onConfirm={handleStatusUpdate}
           onCancel={() => setConfirmAction(null)}
         />
       )}

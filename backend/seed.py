@@ -7,8 +7,9 @@ Usage:
 """
 
 from datetime import date, timedelta
-from api import app
-from models import db, bcrypt, Client, Doctor, Appointment, DoctorAvailability
+from api import create_app
+from extensions import db
+from models import Client, Doctor, Appointment, DoctorAvailability
 
 def next_weekday(offset_days):
     """Return a future weekday date offset_days from today, skipping weekends."""
@@ -39,13 +40,14 @@ def get_appointments_data():
         {'client_idx': 0, 'doctor_idx': 0, 'date': next_weekday(3),  'time_from': '09:00', 'time_to': '09:30', 'comments': 'Annual heart checkup', 'status': 'confirmed'},
         {'client_idx': 0, 'doctor_idx': 2, 'date': next_weekday(5),  'time_from': '11:00', 'time_to': '11:30', 'comments': 'Recurring headaches', 'status': 'pending'},
         {'client_idx': 1, 'doctor_idx': 1, 'date': next_weekday(3),  'time_from': '10:00', 'time_to': '10:30', 'comments': 'Skin rash on left arm', 'status': 'confirmed'},
-        {'client_idx': 1, 'doctor_idx': 4, 'date': next_weekday(7),  'time_from': '14:00', 'time_to': '14:30', 'comments': '', 'status': 'pending'},
-        {'client_idx': 2, 'doctor_idx': 3, 'date': next_weekday(10), 'time_from': '16:00', 'time_to': '16:30', 'comments': 'Knee pain after running', 'status': 'declined'},
+        {'client_idx': 1, 'doctor_idx': 4, 'date': next_weekday(7),  'time_from': '13:00', 'time_to': '13:30', 'comments': '', 'status': 'pending'},
+        {'client_idx': 2, 'doctor_idx': 3, 'date': next_weekday(10), 'time_from': '12:30', 'time_to': '13:00', 'comments': 'Knee pain after running', 'status': 'declined'},
         {'client_idx': 2, 'doctor_idx': 6, 'date': next_weekday(14), 'time_from': '12:00', 'time_to': '12:30', 'comments': 'Follow-up session', 'status': 'pending'},
     ]
 
 
 def seed():
+    app = create_app()
     with app.app_context():
         db.create_all()
 
