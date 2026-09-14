@@ -79,9 +79,8 @@ const translations = {
     time: 'Time',
     notes: 'Notes',
     edit: 'Edit',
-    delete: 'Delete',
-    confirmDelete: 'Are you sure you want to delete this appointment?\n\nThis action cannot be undone.',
     confirmAccept: 'Accept this appointment?',
+    confirmCancel: 'Are you sure you want to cancel this appointment?',
     confirmDecline: 'Are you sure you want to decline this appointment?\n\nThe client will be notified.',
 
     // Doctor view
@@ -98,6 +97,7 @@ const translations = {
     statusPending: 'Pending',
     statusConfirmed: 'Confirmed',
     statusDeclined: 'Declined',
+    statusCancelled: 'Cancelled',
 
     // Availability
     availability: 'Availability',
@@ -205,9 +205,8 @@ const translations = {
     time: 'Ώρα',
     notes: 'Σημειώσεις',
     edit: 'Επεξεργασία',
-    delete: 'Διαγραφή',
-    confirmDelete: 'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το ραντεβού;\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
     confirmAccept: 'Αποδοχή αυτού του ραντεβού;',
+    confirmCancel: 'Είστε σίγουροι ότι θέλετε να ακυρώσετε αυτό το ραντεβού;',
     confirmDecline: 'Είστε σίγουροι ότι θέλετε να απορρίψετε αυτό το ραντεβού;\n\nΟ πελάτης θα ειδοποιηθεί.',
 
     // Doctor view
@@ -224,6 +223,7 @@ const translations = {
     statusPending: 'Σε αναμονή',
     statusConfirmed: 'Επιβεβαιωμένο',
     statusDeclined: 'Απορρίφθηκε',
+    statusCancelled: 'Ακυρώθηκε',
 
     // Availability
     availability: 'Διαθεσιμότητα',
