@@ -29,7 +29,7 @@ Medical appointment booking app. Clients book appointments with doctors, doctors
 - Cancel confirmed appointments
 - Edit their profile
 
-All booking rules are enforced by the API, not just the UI: appointments use 30-minute slots inside the doctor's availability, can't be in the past, can't overlap, and statuses can only move pending → confirmed/declined and confirmed → cancelled.
+Appointments use 30-minute slots inside the doctor's availability, can't be in the past and can't overlap.
 
 ## How to Run
 
