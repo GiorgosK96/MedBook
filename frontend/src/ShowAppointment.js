@@ -2,18 +2,48 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { useToast } from './components/ToastContext';
-import { formatDate, formatTime } from './utils/formatDate';
+import { formatDate, formatTime, todayLocal } from './utils/formatDate';
 import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 import ConfirmModal from './components/ConfirmModal';
+import StatusBadge from './components/StatusBadge';
+
+function AppointmentCard({ appointment: a, isPast, onCancel }) {
+  const { t, lang } = useLanguage();
+  const navigate = useNavigate();
+  const canEdit = !isPast && a.status === 'pending';
+  const canCancel = !isPast && (a.status === 'pending' || a.status === 'confirmed');
+
+  return (
+    <div className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${isPast ? 'opacity-50' : ''}`}>
+      <div className="grid grid-cols-[80px_1fr] gap-y-1.5 text-sm">
+        <span className="font-medium text-slate-500">{t.date}</span>
+        <span className="text-slate-800">{formatDate(a.date, lang)}</span>
+        <span className="font-medium text-slate-500">{t.time}</span>
+        <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
+        <span className="font-medium text-slate-500">{t.doctor}</span>
+        <span className="text-slate-800">{a.doctor.full_name} ({a.doctor.specialization})</span>
+        <span className="font-medium text-slate-500">{t.status}</span>
+        <span><StatusBadge status={a.status} /></span>
+        {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
+      </div>
+      {(canEdit || canCancel) && (
+        <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+          {canEdit && <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>}
+          {canCancel && <button onClick={() => onCancel(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.cancelAppointment}</button>}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ShowAppointment() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const showToast = useToast();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirmId, setConfirmId] = useState(null);
-  const navigate = useNavigate();
+  const [cancelId, setCancelId] = useState(null);
 
   useEffect(() => {
     apiFetch('/ShowAppointment')
@@ -23,47 +53,21 @@ function ShowAppointment() {
       .finally(() => setLoading(false));
   }, [t.errorOccurred, showToast]);
 
-  const handleDelete = () => {
-    const id = confirmId;
-    setConfirmId(null);
+  const handleCancel = () => {
+    const id = cancelId;
+    setCancelId(null);
     apiFetch(`/ShowAppointment/${id}`, { method: 'DELETE' })
       .then(r => r && r.json().then(d => {
-        if (r.ok) { showToast(d.message, 'success'); setAppointments(appointments.filter(a => a.id !== id)); }
-        else showToast(d.message, 'error');
+        if (!r.ok) { showToast(d.error, 'error'); return; }
+        showToast(d.message, 'success');
+        setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a));
       }))
       .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocal();
   const upcoming = appointments.filter(a => a.date >= today);
   const past = appointments.filter(a => a.date < today);
-
-  const AppointmentCard = ({ a, dimmed }) => (
-    <div key={a.id} className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm ${dimmed ? 'opacity-50' : ''}`}>
-      <div className="grid grid-cols-[80px_1fr] gap-y-1.5 text-sm">
-        <span className="font-medium text-slate-500">{t.date}</span>
-        <span className="text-slate-800">{formatDate(a.date, lang)}</span>
-        <span className="font-medium text-slate-500">{t.time}</span>
-        <span className="text-slate-800">{formatTime(a.time_from)} – {formatTime(a.time_to)}</span>
-        <span className="font-medium text-slate-500">{t.doctor}</span>
-        <span className="text-slate-800">{a.doctor.full_name} ({a.doctor.specialization})</span>
-        <span className="font-medium text-slate-500">{t.status}</span>
-        <span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-          a.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-          a.status === 'declined' ? 'bg-red-100 text-red-700' :
-          a.status === 'cancelled' ? 'bg-slate-100 text-slate-500' :
-          'bg-amber-100 text-amber-700'
-        }`}>{a.status === 'confirmed' ? t.statusConfirmed : a.status === 'declined' ? t.statusDeclined : a.status === 'cancelled' ? (t.statusCancelled || 'Cancelled') : t.statusPending}</span></span>
-        {a.comments && (<><span className="font-medium text-slate-500">{t.notes}</span><span className="text-slate-800">{a.comments}</span></>)}
-      </div>
-      {!dimmed && a.status !== 'cancelled' && (
-        <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
-          <button onClick={() => navigate(`/UpdateAppointment/${a.id}`)} className="px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">{t.edit}</button>
-          <button onClick={() => setConfirmId(a.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors">{t.delete}</button>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 px-6 pb-10 pt-20 font-sans">
@@ -81,16 +85,16 @@ function ShowAppointment() {
           </div>
         ) : (
           <div className="space-y-3 mb-6">
-            {upcoming.map(a => <AppointmentCard key={a.id} a={a} dimmed={false} />)}
+            {upcoming.map(a => <AppointmentCard key={a.id} appointment={a} onCancel={setCancelId} />)}
             {past.length > 0 && upcoming.length > 0 && (
               <p className="text-xs text-slate-400 text-center pt-2 pb-1">— {t.past} —</p>
             )}
-            {past.map(a => <AppointmentCard key={a.id} a={a} dimmed={true} />)}
+            {past.map(a => <AppointmentCard key={a.id} appointment={a} isPast onCancel={setCancelId} />)}
           </div>
         )}
       </div>
 
-      {confirmId && <ConfirmModal message={t.confirmDelete} onConfirm={handleDelete} onCancel={() => setConfirmId(null)} />}
+      {cancelId && <ConfirmModal message={t.confirmCancel} confirmLabel={t.cancelAppointment} onConfirm={handleCancel} onCancel={() => setCancelId(null)} />}
     </div>
   );
 }

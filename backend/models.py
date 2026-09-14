@@ -1,8 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
+from extensions import bcrypt, db
 
-db = SQLAlchemy()
-bcrypt = Bcrypt()
+# Appointments in these states no longer take up a time slot.
+INACTIVE_STATUSES = ('declined', 'cancelled')
+
 
 class Person(db.Model):
     __abstract__ = True
@@ -18,22 +18,28 @@ class Person(db.Model):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
 
+    def to_dict(self):
+        # The table name doubles as the role name ('client' / 'doctor').
+        return {'full_name': self.full_name, 'username': self.username, 'email': self.email, 'role': self.__tablename__}
+
     def __repr__(self):
         return f"<{self.__class__.__name__}('{self.full_name}', '{self.username}', '{self.email}')>"
+
 
 class Client(Person):
     __tablename__ = 'client'
 
 
-    def __repr__(self):
-        return f"<Client('{self.full_name}', '{self.username}', '{self.email}')>"
-
 class Doctor(Person):
     __tablename__ = 'doctor'
     specialization = db.Column(db.String(80), nullable=False)
 
-    def __repr__(self):
-        return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
+    def to_dict(self):
+        return {**super().to_dict(), 'specialization': self.specialization}
+
+
+ROLE_MODELS = {'client': Client, 'doctor': Doctor}
+
 
 class DoctorAvailability(db.Model):
     __tablename__ = 'doctor_availability'
@@ -44,6 +50,9 @@ class DoctorAvailability(db.Model):
     end_time = db.Column(db.String(5), nullable=False)    # "17:00"
 
     doctor = db.relationship('Doctor', backref='availabilities')
+
+    def to_dict(self):
+        return {'id': self.id, 'day_of_week': self.day_of_week, 'start_time': self.start_time, 'end_time': self.end_time}
 
 
 class Appointment(db.Model):
@@ -59,6 +68,17 @@ class Appointment(db.Model):
     doctor = db.relationship('Doctor', backref='appointments')
     client = db.relationship('Client', backref='appointments')
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'date': self.date,
+            'time_from': self.time_from,
+            'time_to': self.time_to,
+            'comments': self.comments,
+            'status': self.status,
+            'doctor': {'id': self.doctor.id, 'full_name': self.doctor.full_name, 'specialization': self.doctor.specialization},
+            'client': {'id': self.client.id, 'full_name': self.client.full_name, 'email': self.client.email},
+        }
 
     def __repr__(self):
         return f"<Appointment with Doctor {self.doctor.full_name} on {self.date}>"

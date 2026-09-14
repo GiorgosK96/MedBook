@@ -18,3 +18,6 @@ export function formatTime(timeStr) {
     hour12: true,
   });
 }
+
+// Local date as YYYY-MM-DD ('en-CA' uses that format); toISOString() would give the UTC date.
+export const todayLocal = () => new Date().toLocaleDateString('en-CA');
