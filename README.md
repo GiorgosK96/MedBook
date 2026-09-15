@@ -1,19 +1,16 @@
 # MedBook
 
-![CI](https://github.com/GiorgosK96/Medbook/actions/workflows/ci.yml/badge.svg)
-
 Medical appointment booking app. Clients book appointments with doctors, doctors manage their schedule and accept or decline requests.
 
 ## Tech Stack
 
-**Backend** — Python / Flask
+**Backend** - Python / Flask
 - Flask with SQLAlchemy (SQLite)
 - JWT auth in httpOnly cookies with CSRF protection, bcrypt password hashing, rate-limited login
 - pytest test suite, run on every push by GitHub Actions
 
-**Frontend** — React
+**Frontend** - React
 - Tailwind CSS for styling
-- English / Greek translations
 
 ## What It Does
 
@@ -29,7 +26,7 @@ Medical appointment booking app. Clients book appointments with doctors, doctors
 - Cancel confirmed appointments
 - Edit their profile
 
-All booking rules are enforced by the API, not just the UI: appointments use 30-minute slots inside the doctor's availability, can't be in the past, can't overlap, and statuses can only move pending → confirmed/declined and confirmed → cancelled.
+Appointments use 30-minute slots inside the doctor's availability, can't be in the past and can't overlap.
 
 ## How to Run
 

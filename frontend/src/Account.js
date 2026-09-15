@@ -15,10 +15,14 @@ function Account() {
 
   useEffect(() => {
     apiFetch('/account')
-    .then(r => r && r.json())
-    .then(data => { if (!data) return; if (data.error) showToast(data.error, 'error'); else setAccountData(data); })
-    .catch(() => showToast(t.failedToLoad, 'error'))
-    .finally(() => setLoading(false));
+      .then(r => r && r.json())
+      .then(d => {
+        if (!d) return;
+        if (d.error) showToast(d.error, 'error');
+        else setAccountData(d);
+      })
+      .catch(() => showToast(t.failedToLoad, 'error'))
+      .finally(() => setLoading(false));
   }, [t.failedToLoad, showToast]);
 
   const startEditing = () => {
@@ -43,15 +47,16 @@ function Account() {
         ...(form.new_password ? { current_password: form.current_password, new_password: form.new_password } : {}),
       }),
     })
-    .then(r => r && r.json().then(data => ({ ok: r.ok, data })))
-    .then(result => {
-      if (!result) return;
-      const { ok, data } = result;
-      if (ok) { setAccountData(data); setEditing(false); showToast(t.profileUpdated, 'success'); }
-      else showToast(data.error, 'error');
-    })
-    .catch(() => showToast(t.errorOccurred, 'error'))
-    .finally(() => setSaving(false));
+      .then(r => r && r.json())
+      .then(d => {
+        if (!d) return;
+        if (d.error) { showToast(d.error, 'error'); return; }
+        setAccountData(d);
+        setEditing(false);
+        showToast(t.profileUpdated, 'success');
+      })
+      .catch(() => showToast(t.errorOccurred, 'error'))
+      .finally(() => setSaving(false));
   };
 
   const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800";

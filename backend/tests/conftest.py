@@ -11,7 +11,6 @@ from extensions import db as _db
 
 
 class TestingConfig(Config):
-    # Set before the extensions are initialised, so tests can never touch the dev database.
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     JWT_SECRET_KEY = 'test-secret-key'

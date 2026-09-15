@@ -8,7 +8,6 @@ from scheduling import availability_error, free_slots, parse_date
 
 doctors_bp = Blueprint('doctors', __name__)
 
-# Status changes a doctor may make, keyed by the appointment's current status.
 DOCTOR_TRANSITIONS = {'pending': ('confirmed', 'declined'), 'confirmed': ('cancelled',)}
 
 
@@ -27,7 +26,7 @@ def available_slots(doctor_id):
     if not day:
         return jsonify({'error': 'A date parameter in YYYY-MM-DD format is required'}), 400
 
-    # Only a client editing their own appointment may have its slot counted as free.
+    # When a client edits an appointment, its current slot should show as free
     exclude_id = request.args.get('exclude_appointment_id', type=int)
     if exclude_id and not (get_jwt()['role'] == 'client' and
                            Appointment.query.filter_by(id=exclude_id, client_id=current_user_id()).first()):

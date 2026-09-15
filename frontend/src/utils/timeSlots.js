@@ -10,11 +10,13 @@ function addHalfHour(time) {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
-// A booking can run through consecutive free slots, up to the first one that isn't free.
+// End times run through consecutive free slots, stopping at the first taken one
 export function endTimesFrom(freeSlots, start) {
   const ends = [];
-  for (let slot = start; freeSlots.includes(slot); ends.push(slot)) {
+  let slot = start;
+  while (freeSlots.includes(slot)) {
     slot = addHalfHour(slot);
+    ends.push(slot);
   }
   return ends;
 }

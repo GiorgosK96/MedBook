@@ -1,4 +1,3 @@
-"""Flask extension instances, created unbound and attached to the app in create_app()."""
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter

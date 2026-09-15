@@ -65,12 +65,11 @@ function DoctorAvailability() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ availability: flat }),
     })
-      .then(r => r && r.json().then(d => ({ ok: r.ok, d })))
-      .then(result => {
-        if (!result) return;
-        const { ok, d } = result;
-        if (ok) showToast(t.availabilitySaved, 'success');
-        else showToast(d.error, 'error');
+      .then(r => r && r.json())
+      .then(d => {
+        if (!d) return;
+        if (d.error) showToast(d.error, 'error');
+        else showToast(t.availabilitySaved, 'success');
       })
       .catch(() => showToast(t.errorOccurred, 'error'))
       .finally(() => setSaving(false));

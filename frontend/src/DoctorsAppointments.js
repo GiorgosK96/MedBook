@@ -30,15 +30,16 @@ function DoctorsAppointments() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
-      .then(r => r && r.json().then(d => {
-        if (!r.ok) { showToast(d.error, 'error'); return; }
+      .then(r => r && r.json())
+      .then(d => {
+        if (!d) return;
+        if (d.error) { showToast(d.error, 'error'); return; }
         showToast(d.message, 'success');
         setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
-      }))
+      })
       .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
-  // [confirmation message, button label] for each status a doctor can set
   const confirmText = {
     confirmed: [t.confirmAccept, t.acceptAppointment],
     declined: [t.confirmDecline, t.declineAppointment],
@@ -52,7 +53,6 @@ function DoctorsAppointments() {
 
         {loading ? <Spinner /> : appointments.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
-            <p className="text-3xl mb-3 opacity-40">🩺</p>
             <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsScheduled}</p>
             <p className="text-sm text-slate-500">{t.noAppointmentsScheduledDesc}</p>
           </div>

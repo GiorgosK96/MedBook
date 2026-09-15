@@ -16,12 +16,16 @@ def create_app(config=Config):
     app = Flask(__name__)
     app.config.from_object(config)
 
-    for extension in (db, bcrypt, jwt, limiter):
-        extension.init_app(app)
+    db.init_app(app)
+    bcrypt.init_app(app)
+    jwt.init_app(app)
+    limiter.init_app(app)
     CORS(app, origins=[os.getenv('FRONTEND_URL', 'http://localhost:3000')], supports_credentials=True)
 
-    for blueprint in (auth_bp, appointments_bp, doctors_bp, account_bp):
-        app.register_blueprint(blueprint)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(appointments_bp)
+    app.register_blueprint(doctors_bp)
+    app.register_blueprint(account_bp)
 
     @app.errorhandler(NotFound)
     def not_found(error):
