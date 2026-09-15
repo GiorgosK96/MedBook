@@ -57,11 +57,13 @@ function ShowAppointment() {
     const id = cancelId;
     setCancelId(null);
     apiFetch(`/ShowAppointment/${id}`, { method: 'DELETE' })
-      .then(r => r && r.json().then(d => {
-        if (!r.ok) { showToast(d.error, 'error'); return; }
+      .then(r => r && r.json())
+      .then(d => {
+        if (!d) return;
+        if (d.error) { showToast(d.error, 'error'); return; }
         showToast(d.message, 'success');
         setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a));
-      }))
+      })
       .catch(() => showToast(t.errorOccurred, 'error'));
   };
 
@@ -76,7 +78,6 @@ function ShowAppointment() {
 
         {loading ? <Spinner /> : appointments.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
-            <p className="text-3xl mb-3 opacity-40">📅</p>
             <p className="text-base font-semibold text-slate-800 mb-1">{t.noAppointmentsYet}</p>
             <p className="text-sm text-slate-500 mb-6">{t.noAppointmentsDesc}</p>
             <button onClick={() => navigate('/AddAppointment')} className="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
@@ -87,7 +88,7 @@ function ShowAppointment() {
           <div className="space-y-3 mb-6">
             {upcoming.map(a => <AppointmentCard key={a.id} appointment={a} onCancel={setCancelId} />)}
             {past.length > 0 && upcoming.length > 0 && (
-              <p className="text-xs text-slate-400 text-center pt-2 pb-1">— {t.past} —</p>
+              <p className="text-xs text-slate-400 text-center pt-2 pb-1">{t.past}</p>
             )}
             {past.map(a => <AppointmentCard key={a.id} appointment={a} isPast onCancel={setCancelId} />)}
           </div>

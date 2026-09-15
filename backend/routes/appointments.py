@@ -77,7 +77,7 @@ def update_appointment(appointment_id):
 @appointments_bp.route('/ShowAppointment/<int:appointment_id>', methods=['DELETE'])
 @role_required('client')
 def cancel_appointment(appointment_id):
-    # Cancelled rather than deleted, so the doctor still sees it.
+    # Not deleted, so the doctor still sees it
     appointment = own_appointment(appointment_id)
     if appointment.status not in ('pending', 'confirmed'):
         return jsonify({'error': f'A {appointment.status} appointment cannot be cancelled'}), 409

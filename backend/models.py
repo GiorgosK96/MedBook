@@ -1,6 +1,6 @@
 from extensions import bcrypt, db
 
-# Appointments in these states no longer take up a time slot.
+# Appointments in these states free up their time slot
 INACTIVE_STATUSES = ('declined', 'cancelled')
 
 
@@ -19,8 +19,7 @@ class Person(db.Model):
         return bcrypt.check_password_hash(self.password, password)
 
     def to_dict(self):
-        # The table name doubles as the role name ('client' / 'doctor').
-        return {'full_name': self.full_name, 'username': self.username, 'email': self.email, 'role': self.__tablename__}
+        return {'full_name': self.full_name, 'username': self.username, 'email': self.email, 'role': self.role}
 
     def __repr__(self):
         return f"<{self.__class__.__name__}('{self.full_name}', '{self.username}', '{self.email}')>"
@@ -28,10 +27,12 @@ class Person(db.Model):
 
 class Client(Person):
     __tablename__ = 'client'
+    role = 'client'
 
 
 class Doctor(Person):
     __tablename__ = 'doctor'
+    role = 'doctor'
     specialization = db.Column(db.String(80), nullable=False)
 
     def to_dict(self):

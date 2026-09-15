@@ -23,7 +23,6 @@ def set_availability(client, token, slots):
 
 
 def monday_9_to_11(client):
-    """A doctor working Mondays 09:00-11:00, a logged-in client, and next Monday's date."""
     doctor_token, doctor_id = setup_doctor(client)
     set_availability(client, doctor_token, [{'day_of_week': 0, 'start_time': '09:00', 'end_time': '11:00'}])
     register_client(client)

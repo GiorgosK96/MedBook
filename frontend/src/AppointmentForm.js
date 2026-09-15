@@ -7,7 +7,6 @@ import { endTimesFrom } from './utils/timeSlots';
 import { apiFetch } from './utils/apiFetch';
 import Spinner from './components/Spinner';
 
-// Books a new appointment, or edits one when the URL has an appointmentId.
 function AppointmentForm() {
   const { t } = useLanguage();
   const showToast = useToast();
@@ -37,9 +36,8 @@ function AppointmentForm() {
 
   useEffect(() => {
     if (!form.doctor_id || !form.date) { setSlots(null); return; }
-    let ignore = false;  // drop the response if the doctor or date changed while it was loading
+    let ignore = false;
     const params = new URLSearchParams({ date: form.date });
-    // When editing, the appointment's own time should still show as free.
     if (appointmentId) params.set('exclude_appointment_id', appointmentId);
     apiFetch(`/doctors/${form.doctor_id}/availableSlots?${params}`)
       .then(r => r && r.json())
@@ -59,7 +57,7 @@ function AppointmentForm() {
       .then(r => r && r.json())
       .then(d => {
         if (!d) return;
-        if (d.error) { showToast(`Error: ${d.error}`, 'error'); return; }
+        if (d.error) { showToast(d.error, 'error'); return; }
         showToast(d.message, 'success');
         navigate('/ShowAppointment');
       })
@@ -75,10 +73,11 @@ function AppointmentForm() {
     );
   }
 
-  const grouped = doctors.reduce((acc, d) => {
-    (acc[d.specialization] = acc[d.specialization] || []).push(d);
-    return acc;
-  }, {});
+  const grouped = {};
+  doctors.forEach(d => {
+    if (!grouped[d.specialization]) grouped[d.specialization] = [];
+    grouped[d.specialization].push(d);
+  });
   const endTimes = form.time_from && slots ? endTimesFrom(slots, form.time_from) : [];
   const inputClass = (disabled) => `w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 text-slate-800 ${disabled ? 'opacity-50' : ''}`;
   const labelClass = "block text-sm font-medium text-slate-600 mb-1.5";

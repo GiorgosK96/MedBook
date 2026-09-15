@@ -6,14 +6,11 @@ Medical appointment booking app. Clients book appointments with doctors, doctors
 
 ## Tech Stack
 
-**Backend** — Python / Flask
-- Flask with SQLAlchemy (SQLite)
-- JWT auth in httpOnly cookies with CSRF protection, bcrypt password hashing, rate-limited login
-- pytest test suite, run on every push by GitHub Actions
+**Backend:** Flask, SQLAlchemy (SQLite), JWT in httpOnly cookies, bcrypt, pytest
 
-**Frontend** — React
-- Tailwind CSS for styling
-- English / Greek translations
+**Frontend:** React, Tailwind CSS, English and Greek translations
+
+Tests and the frontend build run on GitHub Actions.
 
 ## What It Does
 

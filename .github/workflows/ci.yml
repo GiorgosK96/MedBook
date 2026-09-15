@@ -47,7 +47,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # CI=true makes react-scripts treat lint warnings as build errors.
       - name: Build
         run: npm run build
         env:

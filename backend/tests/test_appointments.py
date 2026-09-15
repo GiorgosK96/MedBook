@@ -6,7 +6,6 @@ PAST_DATE = '2000-01-01'
 
 
 def setup_users(client):
-    """Register a doctor who works 08:00-18:00 every day, plus a logged-in client."""
     register_doctor(client)
     set_full_week_availability(client, get_token(login_doctor(client)))
 

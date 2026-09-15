@@ -19,5 +19,5 @@ export function formatTime(timeStr) {
   });
 }
 
-// Local date as YYYY-MM-DD ('en-CA' uses that format); toISOString() would give the UTC date.
+// YYYY-MM-DD in local time (toISOString() would use UTC)
 export const todayLocal = () => new Date().toLocaleDateString('en-CA');

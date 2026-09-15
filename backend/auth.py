@@ -13,7 +13,7 @@ def role_required(role):
         @jwt_required()
         def wrapper(*args, **kwargs):
             if get_jwt().get('role') != role:
-                return jsonify({'error': f'{role.capitalize()}s only'}), 403
+                return jsonify({'error': 'You are not allowed to do this'}), 403
             return view(*args, **kwargs)
         return wrapper
     return decorator
