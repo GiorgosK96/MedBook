@@ -1,16 +1,16 @@
 # MedBook
 
-![CI](https://github.com/GiorgosK96/Medbook/actions/workflows/ci.yml/badge.svg)
-
 Medical appointment booking app. Clients book appointments with doctors, doctors manage their schedule and accept or decline requests.
 
 ## Tech Stack
 
-**Backend:** Flask, SQLAlchemy (SQLite), JWT in httpOnly cookies, bcrypt, pytest
+**Backend** - Python / Flask
+- Flask with SQLAlchemy (SQLite)
+- JWT auth in httpOnly cookies with CSRF protection, bcrypt password hashing, rate-limited login
+- pytest test suite, run on every push by GitHub Actions
 
-**Frontend:** React, Tailwind CSS, English and Greek translations
-
-Tests and the frontend build run on GitHub Actions.
+**Frontend** - React
+- Tailwind CSS for styling
 
 ## What It Does
 
