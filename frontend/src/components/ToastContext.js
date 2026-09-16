@@ -13,24 +13,17 @@ const ICONS = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
   ),
-  info: (
-    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <circle cx="12" cy="12" r="10" />
-      <path strokeLinecap="round" d="M12 16v-4M12 8h.01" />
-    </svg>
-  ),
 };
 
 const STYLES = {
   success: 'bg-green-50 text-green-700 border-green-200',
   error: 'bg-red-50 text-red-600 border-red-200',
-  info: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const showToast = useCallback((message, type = 'info') => {
+  const showToast = useCallback((message, type) => {
     const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);

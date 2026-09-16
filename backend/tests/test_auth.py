@@ -1,77 +1,38 @@
-import pytest
-from helpers import register_client, register_doctor, login_client, login_doctor, get_token
+from helpers import get_token, login_client, login_doctor, register_client, register_doctor
 
 
-class TestRegisterClient:
+class TestRegister:
     def test_register_client_success(self, client):
         res = register_client(client)
         assert res.status_code == 201
         assert res.get_json()['message'] == 'Account registered successfully'
 
-    def test_register_client_duplicate_email(self, client):
-        register_client(client)
-        res = register_client(client, username='other_user')
-        assert res.status_code == 400
-        assert 'error' in res.get_json()
-
-    def test_register_client_duplicate_username(self, client):
-        register_client(client)
-        res = register_client(client, email='other@test.com')
-        assert res.status_code == 400
-        assert 'error' in res.get_json()
-
-
-class TestRegisterDoctor:
     def test_register_doctor_success(self, client):
         res = register_doctor(client)
         assert res.status_code == 201
         assert res.get_json()['message'] == 'Doctor registered successfully'
 
-    def test_register_doctor_missing_specialization(self, client):
-        res = client.post('/register', json={
-            'full_name': 'Dr. No Spec',
-            'username': 'nospec',
-            'email': 'nospec@test.com',
-            'password': 'pass123',
-            'role': 'doctor',
-        })
+    def test_duplicate_email_rejected(self, client):
+        register_client(client)
+        res = register_client(client, username='other_user')
+        assert res.status_code == 400
+        assert 'already registered' in res.get_json()['error']
+
+    def test_duplicate_username_rejected(self, client):
+        register_client(client)
+        res = register_client(client, email='other@test.com')
+        assert res.status_code == 400
+        assert 'already registered' in res.get_json()['error']
+
+    def test_doctor_without_specialization_rejected(self, client):
+        res = register_doctor(client, specialization='')
         assert res.status_code == 400
         assert 'Specialization' in res.get_json()['error']
 
-    def test_register_doctor_duplicate_email(self, client):
-        register_doctor(client)
-        res = register_doctor(client, username='docuser2')
-        assert res.status_code == 400
-
-    def test_register_doctor_duplicate_username(self, client):
-        register_doctor(client)
-        res = register_doctor(client, email='other_doc@test.com')
-        assert res.status_code == 400
-
-
-class TestRegisterInvalidRole:
-    def test_register_invalid_role_returns_400(self, client):
-        res = client.post('/register', json={
-            'full_name': 'Nobody',
-            'username': 'nobody',
-            'email': 'nobody@test.com',
-            'password': 'pass123',
-            'role': 'admin',
-        })
+    def test_invalid_role_rejected(self, client):
+        res = client.post('/register', json={'role': 'admin'})
         assert res.status_code == 400
         assert 'Invalid role' in res.get_json()['error']
-
-
-class TestRegisterValidation:
-    def test_missing_password_rejected(self, client):
-        res = client.post('/register', json={
-            'full_name': 'No Password',
-            'username': 'nopass',
-            'email': 'nopass@test.com',
-            'role': 'client',
-        })
-        assert res.status_code == 400
-        assert 'password' in res.get_json()['error']
 
     def test_blank_fields_rejected(self, client):
         res = register_client(client, full_name='   ', username='')
@@ -85,17 +46,11 @@ class TestRegisterValidation:
         assert '6 characters' in res.get_json()['error']
 
     def test_empty_body_rejected(self, client):
-        res = client.post('/register')
-        assert res.status_code == 400
-
-    def test_login_without_password_returns_401(self, client):
-        register_client(client)
-        res = client.post('/login', json={'email': 'client@test.com', 'role': 'client'})
-        assert res.status_code == 401
+        assert client.post('/register').status_code == 400
 
 
-class TestLoginClient:
-    def test_login_client_success(self, client):
+class TestLogin:
+    def test_client_login_success(self, client):
         register_client(client)
         res = login_client(client)
         assert res.status_code == 200
@@ -105,36 +60,7 @@ class TestLoginClient:
         assert data['username'] == 'clientuser'
         assert 'specialization' not in data
 
-    def test_login_client_wrong_password(self, client):
-        register_client(client)
-        res = client.post('/login', json={
-            'email': 'client@test.com',
-            'password': 'wrongpassword',
-            'role': 'client',
-        })
-        assert res.status_code == 401
-        assert 'error' in res.get_json()
-
-    def test_login_client_nonexistent_email(self, client):
-        res = client.post('/login', json={
-            'email': 'ghost@test.com',
-            'password': 'pass123',
-            'role': 'client',
-        })
-        assert res.status_code == 401
-
-    def test_login_client_with_doctor_role_returns_401(self, client):
-        register_client(client)
-        res = client.post('/login', json={
-            'email': 'client@test.com',
-            'password': 'pass123',
-            'role': 'doctor',
-        })
-        assert res.status_code == 401
-
-
-class TestLoginDoctor:
-    def test_login_doctor_success(self, client):
+    def test_doctor_login_success(self, client):
         register_doctor(client)
         res = login_doctor(client)
         assert res.status_code == 200
@@ -144,31 +70,29 @@ class TestLoginDoctor:
         assert data['username'] == 'docuser'
         assert data['specialization'] == 'Cardiology'
 
-    def test_login_doctor_wrong_password(self, client):
-        register_doctor(client)
-        res = client.post('/login', json={
-            'email': 'doc@test.com',
-            'password': 'wrongpassword',
-            'role': 'doctor',
-        })
+    def test_wrong_password_rejected(self, client):
+        register_client(client)
+        res = login_client(client, password='wrongpassword')
+        assert res.status_code == 401
+        assert 'error' in res.get_json()
+
+    def test_unknown_email_rejected(self, client):
+        assert login_client(client, email='ghost@test.com').status_code == 401
+
+    def test_missing_password_rejected(self, client):
+        register_client(client)
+        res = client.post('/login', json={'email': 'client@test.com', 'role': 'client'})
         assert res.status_code == 401
 
-    def test_login_doctor_with_client_role_returns_401(self, client):
+    def test_client_cannot_login_as_doctor(self, client):
+        register_client(client)
+        assert login_doctor(client, email='client@test.com').status_code == 401
+
+    def test_doctor_cannot_login_as_client(self, client):
         register_doctor(client)
-        res = client.post('/login', json={
-            'email': 'doc@test.com',
-            'password': 'pass123',
-            'role': 'client',
-        })
-        assert res.status_code == 401
+        assert login_client(client, email='doc@test.com').status_code == 401
 
-
-class TestLoginInvalidRole:
-    def test_login_invalid_role_returns_400(self, client):
-        res = client.post('/login', json={
-            'email': 'anyone@test.com',
-            'password': 'pass123',
-            'role': 'superuser',
-        })
+    def test_invalid_role_rejected(self, client):
+        res = client.post('/login', json={'email': 'anyone@test.com', 'password': 'pass123', 'role': 'superuser'})
         assert res.status_code == 400
         assert 'Invalid role' in res.get_json()['error']

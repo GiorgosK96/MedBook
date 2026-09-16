@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from helpers import auth_headers, get_token, login_doctor, register_doctor
+from helpers import auth_headers, doctor_token, first_doctor_id
 from scheduling import availability_error, free_slots, slots_between
 
 
@@ -18,11 +18,9 @@ def test_overlapping_windows_detected_in_any_order():
 
 
 def test_slots_that_already_started_today_are_hidden(client):
-    register_doctor(client)
     day = date(2099, 12, 1)
     client.put('/doctorAvailability', json={'availability': [
         {'day_of_week': day.weekday(), 'start_time': '09:00', 'end_time': '11:00'},
-    ]}, headers=auth_headers(get_token(login_doctor(client))))
-    doctor_id = client.get('/doctors').get_json()['doctors'][0]['id']
+    ]}, headers=auth_headers(doctor_token(client)))
 
-    assert free_slots(doctor_id, day, now=datetime(2099, 12, 1, 9, 40)) == ['10:00', '10:30']
+    assert free_slots(first_doctor_id(client), day, now=datetime(2099, 12, 1, 9, 40)) == ['10:00', '10:30']

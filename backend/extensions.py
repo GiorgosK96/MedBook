@@ -7,4 +7,4 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-limiter = Limiter(get_remote_address, default_limits=[])
+limiter = Limiter(get_remote_address)

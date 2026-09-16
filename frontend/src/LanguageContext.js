@@ -14,12 +14,6 @@ const translations = {
     alreadyHaveAccount: 'Already have an account?',
     signIn: 'Sign in',
     or: 'or',
-    featureEasy: 'Easy',
-    featureEasyDesc: 'Book in seconds',
-    featureSecure: 'Secure',
-    featureSecureDesc: 'Your data is safe',
-    featureFast: 'Fast',
-    featureFastDesc: 'No waiting around',
 
     // Auth
     email: 'Email',
@@ -68,7 +62,6 @@ const translations = {
     comments: 'Comments',
     bookAppointment: 'Book Appointment',
     saveChanges: 'Save Changes',
-    backToDashboard: 'Back to Dashboard',
     allFieldsRequired: 'All fields are required',
 
     // Show Appointments
@@ -107,7 +100,6 @@ const translations = {
     remove: 'Remove',
     noSlotsAvailable: 'No available slots for this date',
     selectDoctorFirst: 'Select a doctor first',
-    selectDateFirst: 'Select a date',
     monday: 'Monday',
     tuesday: 'Tuesday',
     wednesday: 'Wednesday',
@@ -118,7 +110,6 @@ const translations = {
 
     // Account
     accountTitle: 'Account',
-    back: 'Back',
     failedToLoad: 'Failed to load account details',
     editProfile: 'Edit Profile',
     currentPassword: 'Current Password',
@@ -127,7 +118,6 @@ const translations = {
 
     // Confirm / Toast
     cancelBtn: 'Cancel',
-    confirmDeleteBtn: 'Delete',
   },
   el: {
     // App
@@ -140,12 +130,6 @@ const translations = {
     alreadyHaveAccount: 'Έχετε ήδη λογαριασμό;',
     signIn: 'Σύνδεση',
     or: 'ή',
-    featureEasy: 'Εύκολο',
-    featureEasyDesc: 'Κλείστε σε δευτερόλεπτα',
-    featureSecure: 'Ασφαλές',
-    featureSecureDesc: 'Τα δεδομένα σας προστατεύονται',
-    featureFast: 'Γρήγορο',
-    featureFastDesc: 'Χωρίς αναμονή',
 
     // Auth
     email: 'Email',
@@ -194,7 +178,6 @@ const translations = {
     comments: 'Σχόλια',
     bookAppointment: 'Κλείσιμο Ραντεβού',
     saveChanges: 'Αποθήκευση',
-    backToDashboard: 'Πίσω στον πίνακα ελέγχου',
     allFieldsRequired: 'Όλα τα πεδία είναι υποχρεωτικά',
 
     // Show Appointments
@@ -233,7 +216,6 @@ const translations = {
     remove: 'Αφαίρεση',
     noSlotsAvailable: 'Δεν υπάρχουν διαθέσιμες ώρες για αυτή την ημερομηνία',
     selectDoctorFirst: 'Επιλέξτε πρώτα γιατρό',
-    selectDateFirst: 'Επιλέξτε ημερομηνία',
     monday: 'Δευτέρα',
     tuesday: 'Τρίτη',
     wednesday: 'Τετάρτη',
@@ -244,7 +226,6 @@ const translations = {
 
     // Account
     accountTitle: 'Λογαριασμός',
-    back: 'Πίσω',
     failedToLoad: 'Αποτυχία φόρτωσης στοιχείων λογαριασμού',
     editProfile: 'Επεξεργασία Προφίλ',
     currentPassword: 'Τρέχων Κωδικός',
@@ -253,7 +234,6 @@ const translations = {
 
     // Confirm / Toast
     cancelBtn: 'Ακύρωση',
-    confirmDeleteBtn: 'Διαγραφή',
   },
 };
 

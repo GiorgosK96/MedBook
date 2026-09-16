@@ -71,7 +71,8 @@ def seed():
         db.session.flush()  # so doctors and clients get their ids
 
         # Create appointments
-        for a in get_appointments_data():
+        appointments_data = get_appointments_data()
+        for a in appointments_data:
             appointment = Appointment(
                 client_id=clients[a['client_idx']].id,
                 doctor_id=doctors[a['doctor_idx']].id,
@@ -79,12 +80,11 @@ def seed():
                 time_from=a['time_from'],
                 time_to=a['time_to'],
                 comments=a['comments'],
-                status=a.get('status', 'pending'),
+                status=a['status'],
             )
             db.session.add(appointment)
 
         # Mon-Fri, 09:00-14:00
-        availability_count = 0
         for doctor in doctors:
             for day in range(5):
                 db.session.add(DoctorAvailability(
@@ -93,15 +93,14 @@ def seed():
                     start_time='09:00',
                     end_time='14:00',
                 ))
-                availability_count += 1
 
         db.session.commit()
 
         print('Seeded successfully!')
         print(f'  {len(doctors)} doctors')
         print(f'  {len(clients)} clients')
-        print(f'  {len(get_appointments_data())} appointments')
-        print(f'  {availability_count} availability slots')
+        print(f'  {len(appointments_data)} appointments')
+        print(f'  {len(doctors) * 5} availability slots')
         print()
         print('Sample logins:')
         print('  Client: kostas@example.com / client123')

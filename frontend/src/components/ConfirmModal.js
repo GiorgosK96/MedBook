@@ -25,7 +25,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel, confirmLabe
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${btnClass}`}
           >
-            {confirmLabel || t.confirmDeleteBtn}
+            {confirmLabel}
           </button>
         </div>
         <style>{`@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }`}</style>
